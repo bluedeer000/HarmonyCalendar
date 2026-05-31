@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "app_name",
+      "value": "Harmony 日历"
+    },
+    {
+      "name": "module_desc",
+      "value": "Harmony 日历主模块"
+    },
+    {
+      "name": "entry_ability_desc",
+      "value": "Harmony 日历主入口"
+    }
+  ]
+}

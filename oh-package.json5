@@ -1,0 +1,9 @@
+{
+  "modelVersion": "5.0.0",
+  "name": "harmony-calendar",
+  "version": "0.1.0",
+  "description": "HarmonyOS calendar app with Zoho CalDAV two-way sync.",
+  "license": "UNLICENSED",
+  "dependencies": {},
+  "devDependencies": {}
+}
