@@ -12,6 +12,7 @@
 - 准备截图
 - 准备隐私政策 URL
 - 准备测试账号或测试说明
+- 如使用 GitHub Pages，先确认 `docs/privacy-policy/index.html` 已成功公开发布
 
 ## 后台录入建议
 

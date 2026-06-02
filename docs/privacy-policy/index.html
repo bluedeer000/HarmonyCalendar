@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Macto 日历隐私政策</title>
+    <style>
+      :root {
+        --bg: #f3efe6;
+        --paper: #fffdf8;
+        --ink: #1d2730;
+        --muted: #5c6874;
+        --line: #d7cfbf;
+        --accent: #1f6f78;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Noto Serif SC", "Songti SC", serif;
+        background:
+          radial-gradient(circle at top left, rgba(31,111,120,.12), transparent 28%),
+          linear-gradient(180deg, #efe5d3 0%, var(--bg) 100%);
+      }
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 48px 20px 72px;
+      }
+      .card {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 18px 60px rgba(29,39,48,.08);
+      }
+      .hero {
+        padding: 40px 32px 26px;
+        border-bottom: 1px solid var(--line);
+        background:
+          linear-gradient(135deg, rgba(31,111,120,.12), rgba(255,255,255,0) 52%),
+          linear-gradient(180deg, #fffaf0 0%, #fffdf8 100%);
+      }
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--accent);
+        font-size: 13px;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(32px, 6vw, 48px);
+        line-height: 1.08;
+      }
+      .meta {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 15px;
+      }
+      .content {
+        padding: 28px 32px 40px;
+      }
+      h2 {
+        margin: 30px 0 14px;
+        font-size: 22px;
+        line-height: 1.3;
+      }
+      p, li {
+        font-size: 16px;
+        line-height: 1.85;
+      }
+      p { margin: 0 0 14px; }
+      ul {
+        margin: 0 0 12px 0;
+        padding-left: 22px;
+      }
+      .note {
+        margin-top: 28px;
+        padding: 16px 18px;
+        border-left: 4px solid var(--accent);
+        background: rgba(31,111,120,.06);
+        color: var(--muted);
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 14px;
+      }
+      @media (max-width: 640px) {
+        .hero, .content {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <article class="card">
+        <section class="hero">
+          <p class="eyebrow">Privacy Policy</p>
+          <h1>Macto 日历隐私政策</h1>
+          <p class="meta">更新日期：2026-06-02</p>
+        </section>
+        <section class="content">
+          <p>本隐私政策适用于 Macto 日历。</p>
+
+          <h2>1. 运营者信息</h2>
+          <ul>
+            <li>运营者名称：李同舟</li>
+            <li>联系邮箱：346856468@qq.com</li>
+          </ul>
+
+          <h2>2. 我们处理的信息</h2>
+          <p>为实现日历同步、展示和提醒功能，应用可能处理以下信息：</p>
+          <ul>
+            <li>账号信息：用户填写的 CalDAV 服务地址、用户名或邮箱。</li>
+            <li>凭据信息：用户填写的 CalDAV 密码或应用专用密码。</li>
+            <li>日历内容：日程标题、开始时间、结束时间、地点、备注、时区、重复规则、提醒信息、参会人、附件链接、网页链接、视频会议链接、忙闲状态、隐私状态等。</li>
+            <li>同步信息：日程唯一标识、远端地址、ETag、同步状态、上次同步结果。</li>
+            <li>本地提醒信息：提醒时间、提醒 ID、提醒状态。</li>
+          </ul>
+
+          <h2>3. 信息使用目的</h2>
+          <ul>
+            <li>连接用户主动配置的第三方 CalDAV 服务。</li>
+            <li>将第三方日历内容同步到本地并展示。</li>
+            <li>允许用户创建、编辑、删除并同步日程。</li>
+            <li>生成、取消和管理本地提醒。</li>
+            <li>记录同步状态，帮助用户识别同步结果和异常。</li>
+          </ul>
+
+          <h2>4. 权限使用说明</h2>
+          <ul>
+            <li><strong>ohos.permission.INTERNET</strong>：连接用户配置的第三方 CalDAV 服务，执行发现、读取、上传和删除同步请求。</li>
+            <li><strong>ohos.permission.PUBLISH_AGENT_REMINDER</strong>：为用户创建、更新和取消本地日程提醒。</li>
+          </ul>
+
+          <h2>5. 信息存储方式</h2>
+          <ul>
+            <li>应用会将必要的账号配置、日程数据、同步状态和提醒信息存储在设备本地。</li>
+            <li>当前版本使用本地加密数据库保存上述信息。</li>
+            <li>我们不会在自有服务器额外备份这些数据；应用仅与用户主动配置的第三方 CalDAV 服务通信。</li>
+          </ul>
+
+          <h2>6. 对外共享与第三方服务</h2>
+          <p>应用不会主动将你的个人信息共享给无关第三方。</p>
+          <p>当你主动配置第三方 CalDAV 服务时，应用会与该服务建立网络连接并传输必要数据，以完成同步。例如：</p>
+          <ul>
+            <li>Zoho Calendar</li>
+            <li>iCloud Calendar</li>
+            <li>Google Calendar 的 CalDAV 接口</li>
+            <li>Nextcloud / ownCloud / Radicale / 其他兼容 CalDAV 服务</li>
+          </ul>
+          <p>这些第三方服务由各自运营者独立提供，适用其各自的隐私政策和服务条款。</p>
+
+          <h2>7. 用户控制与删除</h2>
+          <ul>
+            <li>修改或删除已配置的 CalDAV 账号。</li>
+            <li>删除本地日程内容。</li>
+            <li>关闭或删除本地提醒。</li>
+            <li>卸载应用以删除设备本地保存的数据。</li>
+          </ul>
+          <p>如果你需要进一步删除数据，请同时前往你所配置的第三方日历服务中删除远端数据。</p>
+
+          <h2>8. 未成年人保护</h2>
+          <p>如无监护人同意，未成年人不应自行配置和使用需要账号认证的第三方同步服务。</p>
+
+          <h2>9. 政策更新</h2>
+          <p>如果本政策发生重大变更，我们会通过应用版本更新或应用市场信息更新的方式进行说明。</p>
+
+          <h2>10. 联系我们</h2>
+          <ul>
+            <li>联系邮箱：346856468@qq.com</li>
+          </ul>
+
+          <p class="note">
+            如果你使用 GitHub Pages 发布本页面，建议将 AppGallery Connect 中的隐私政策链接填写为
+            <code>https://bluedeer000.github.io/HarmonyCalendar/privacy-policy/</code>。
+          </p>
+        </section>
+      </article>
+    </main>
+  </body>
+  </html>
