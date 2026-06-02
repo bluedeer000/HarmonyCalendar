@@ -26,6 +26,6 @@
 - versionCode：1000001
 - signed HAP 文件：未重新生成
 - signed HAP 大小：未记录
-- 签名配置：build-profile.json5 中的 `default`
+- 签名配置：仓库模板，真实签名未记录入库
 - 提交渠道：未提交
 - 备注：完成上架材料骨架与仓库清理，待真机回归和正式构建

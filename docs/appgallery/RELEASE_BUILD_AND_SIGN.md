@@ -11,13 +11,13 @@
 - 应用包名：`com.macto.harmonycalendar`
 - 当前发布版本：`1.0.0`
 - 当前版本号：`1000001`
-- 项目已存在本机可用的签名配置，位于仓库根目录的 `build-profile.json5`
+- 仓库根目录的 `build-profile.json5` 现在仅保留安全模板
 
 ## 风险提示
 
-- `build-profile.json5` 当前引用的是本机绝对路径签名材料。
-- 该文件适合当前机器发布，不适合直接当作团队通用签名模板。
-- 如果仓库后续需要多人协作或公开，必须替换为不包含真实签名材料路径和口令的安全方案。
+- 禁止把真实证书路径、profile 路径、别名口令和 store 口令写回 Git 仓库。
+- 本地签名配置方式见 `LOCAL_SIGNING_SETUP.md`
+- 如果仓库后续需要多人协作或公开，建议通过本地脚本或 CI 注入签名参数。
 
 ## 发布前检查
 
@@ -30,7 +30,7 @@
 
 1. 用 DevEco Studio 打开项目根目录 `HarmonyCalendar`
 2. 打开 `File > Project Structure > Signing Configs`
-3. 确认 `default` 签名配置可用
+3. 按 `LOCAL_SIGNING_SETUP.md` 填入本机真实签名材料
 4. 检查证书、profile、别名和口令是否可正常加载
 5. 选择 `Build > Build Hap(s)/APP(s) > Build Hap(s)`
 6. 使用 `release` 构建模式
