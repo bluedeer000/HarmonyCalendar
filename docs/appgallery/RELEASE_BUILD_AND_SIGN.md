@@ -25,6 +25,7 @@
 - 确认工作区干净
 - 确认 `AppScope/app.json5` 中 `versionName` 与 `versionCode` 已更新
 - 确认隐私政策、应用名称、截图、测试账号说明已准备完成
+- 执行 `scripts/preflight_release_check.sh`
 
 ## DevEco Studio 发布方式
 
