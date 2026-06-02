@@ -7,6 +7,7 @@
 - 当前应用市场上架分支：`release/appgallery`
 - AppGallery 提交材料目录：`docs/appgallery/`
 - 发布前自检脚本：`scripts/preflight_release_check.sh`
+- 最终提审表单：`docs/appgallery/APPGALLERY_FINAL_SUBMISSION_FORM_zh-CN.md`
 
 ## 当前能力
 

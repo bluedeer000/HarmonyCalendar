@@ -46,6 +46,7 @@
 - 隐私政策 URL。
 - 测试账号说明。
 - 后台录入流程参考 `APPGALLERY_CONNECT_STEPS.md`
+- 可复制粘贴的最终字段参考 `APPGALLERY_FINAL_SUBMISSION_FORM_zh-CN.md`
 
 ## 六、当前剩余阻塞项
 
