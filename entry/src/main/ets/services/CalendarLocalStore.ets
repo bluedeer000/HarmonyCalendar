@@ -229,6 +229,7 @@ const VIEW_CONFIG_COLUMNS: string[] = [
   "event_order",
   "locale",
   "hour_format",
+  "time_zone",
   "enabled_views_json",
   "agenda_empty_text",
   "agenda_group_mode",
@@ -511,6 +512,7 @@ CREATE TABLE IF NOT EXISTS calendar_view_config (
   event_order TEXT NOT NULL DEFAULT 'start,title',
   locale TEXT NOT NULL DEFAULT 'zh-CN',
   hour_format TEXT NOT NULL DEFAULT '24h',
+  time_zone TEXT NOT NULL DEFAULT 'Asia/Shanghai',
   enabled_views_json TEXT NOT NULL DEFAULT '',
   agenda_empty_text TEXT NOT NULL DEFAULT '当天没有日程',
   agenda_group_mode TEXT NOT NULL DEFAULT 'day',
@@ -1270,7 +1272,25 @@ export class CalendarLocalStore {
   async resolveConflictUseLocal(event: CalendarEvent): Promise<void> {
     await this.init();
     const remote: CalendarEvent | null = this.remoteEventFromConflict(event.conflictJson ?? "");
-    const eventForPush: CalendarEvent = remote === null ? event : { ...event, href: remote.href.length > 0 ? remote.href : event.href, etag: remote.etag };
+    const eventForPush: CalendarEvent = remote === null ? event : {
+  id: event.id, uid: event.uid, sourceId: event.sourceId, href: remote.href.length > 0 ? remote.href : event.href,
+  etag: remote.etag, title: event.title, startAt: event.startAt, endAt: event.endAt,
+  allDay: event.allDay, location: event.location, notes: event.notes,
+  reminderMinutes: event.reminderMinutes, secondReminderMinutes: event.secondReminderMinutes, syncStatus: event.syncStatus,
+  lastModified: event.lastModified, rrule: event.rrule ?? "", categoryColor: event.categoryColor ?? "",
+  backgroundColor: event.backgroundColor ?? "", borderColor: event.borderColor ?? "",
+  textColor: event.textColor ?? "", dragBackgroundColor: event.dragBackgroundColor ?? "",
+  eventCategory: event.eventCategory ?? "", eventKind: event.eventKind ?? "calendar",
+  eventSourceId: event.eventSourceId ?? "", url: event.url ?? "", attendees: event.attendees ?? "",
+  attendeeJson: event.attendeeJson ?? "", organizerName: event.organizerName ?? "",
+  organizerEmail: event.organizerEmail ?? "", conferenceUrl: event.conferenceUrl ?? "",
+  attachmentUrl: event.attachmentUrl ?? "", attachmentsJson: event.attachmentsJson ?? "",
+  travelMinutes: event.travelMinutes ?? 0, comingDuration: event.comingDuration ?? 0,
+  availability: event.availability ?? "busy", freeBusyTransparent: event.freeBusyTransparent ?? false,
+  rawPropsJson: event.rawPropsJson ?? "", snoozeMinutes: event.snoozeMinutes ?? 0,
+  snoozeTimes: event.snoozeTimes ?? 0, reminderId: event.reminderId ?? 0,
+  conflictStatus: event.conflictStatus, conflictJson: event.conflictJson ?? ""
+} as CalendarEvent;
     const nextStatus: CalendarSyncStatus = event.syncStatus === "deleted" ? "deleted" : "dirty";
     const resolved: CalendarEvent = this.copyResolvedEvent(eventForPush, nextStatus, Date.now(), event.sourceId);
     await this.saveLocalEvent(resolved);
@@ -1616,6 +1636,7 @@ export class CalendarLocalStore {
 	    await this.ensureViewConfigColumn("event_order", "TEXT NOT NULL DEFAULT 'start,title'");
 	    await this.ensureViewConfigColumn("locale", "TEXT NOT NULL DEFAULT 'zh-CN'");
 	    await this.ensureViewConfigColumn("hour_format", "TEXT NOT NULL DEFAULT '24h'");
+	    await this.ensureViewConfigColumn("time_zone", "TEXT NOT NULL DEFAULT 'Asia/Shanghai'");
 	    await this.ensureViewConfigColumn("enabled_views_json", "TEXT NOT NULL DEFAULT ''");
 	    await this.ensureViewConfigColumn("agenda_empty_text", "TEXT NOT NULL DEFAULT '当天没有日程'");
 		    await this.ensureViewConfigColumn("agenda_group_mode", "TEXT NOT NULL DEFAULT 'day'");
@@ -2416,6 +2437,7 @@ export class CalendarLocalStore {
 	      eventOrder: this.readOptionalString(resultSet, "event_order"),
 	      locale: this.readOptionalString(resultSet, "locale"),
 	      hourFormat: this.readOptionalString(resultSet, "hour_format"),
+	      timeZone: this.readOptionalString(resultSet, "time_zone"),
 	      enabledViewsJson: this.readOptionalString(resultSet, "enabled_views_json"),
 		      agendaEmptyText: this.readOptionalString(resultSet, "agenda_empty_text"),
 		      agendaGroupMode: this.readOptionalString(resultSet, "agenda_group_mode"),
@@ -2465,6 +2487,7 @@ export class CalendarLocalStore {
 	      event_order: config.eventOrder ?? "start,title",
 	      locale: config.locale ?? "zh-CN",
 	      hour_format: config.hourFormat ?? "24h",
+	      time_zone: config.timeZone ?? "Asia/Shanghai",
 	      enabled_views_json: config.enabledViewsJson ?? "",
 		      agenda_empty_text: config.agendaEmptyText ?? "当天没有日程",
 		      agenda_group_mode: config.agendaGroupMode ?? "day",
@@ -2842,6 +2865,7 @@ export class CalendarLocalStore {
 	      eventOrder: "start,title",
 	      locale: "zh-CN",
 	      hourFormat: "24h",
+	      timeZone: "Asia/Shanghai",
 	      enabledViewsJson: "",
 	      agendaEmptyText: "当天没有日程",
 		      agendaGroupMode: "day",
@@ -2895,6 +2919,7 @@ export class CalendarLocalStore {
 	      eventOrder: (config.eventOrder ?? "start,title").trim().length > 0 ? (config.eventOrder ?? "start,title").trim() : "start,title",
 	      locale: (config.locale ?? "zh-CN").trim().length > 0 ? (config.locale ?? "zh-CN").trim() : "zh-CN",
 	      hourFormat: this.normalizeHourFormat(config.hourFormat ?? "24h"),
+	      timeZone: this.normalizeTimeZone(config.timeZone ?? "Asia/Shanghai"),
 	      enabledViewsJson: config.enabledViewsJson ?? "",
 		      agendaEmptyText: (config.agendaEmptyText ?? "当天没有日程").trim().length > 0 ? (config.agendaEmptyText ?? "当天没有日程").trim() : "当天没有日程",
 		      agendaGroupMode: this.normalizeAgendaGroupMode(config.agendaGroupMode ?? "day"),
@@ -2929,6 +2954,11 @@ export class CalendarLocalStore {
 
 	  private normalizeHourFormat(value: string): string {
 	    return value === "12h" ? "12h" : "24h";
+	  }
+
+	  private normalizeTimeZone(value: string): string {
+	    const timeZone: string = value.trim();
+	    return timeZone.length > 0 ? timeZone : "Asia/Shanghai";
 	  }
 
 	  private normalizeEventKindFilter(value: string): string {
@@ -2995,17 +3025,17 @@ export class CalendarLocalStore {
 	        return "";
 	      }
 
-	      const users: Record<string, string>[] = [];
+	      const users: Object[] = [];
 	      parsed.forEach((item: Record<string, Object>) => {
 	        const email: string = `${item["email"] ?? ""}`.trim();
 	        if (email.length === 0) {
 	          return;
 	        }
-	        users.push({
+	        users.push(JSON.parse(JSON.stringify({
 	          email,
 	          role: `${item["role"] ?? "read"}` === "write" ? "write" : "read",
 	          diagnostic: `${item["diagnostic"] ?? ""}`
-	        });
+	        })));
 	      });
 	      return users.length > 0 ? JSON.stringify(users) : "";
 	    } catch {

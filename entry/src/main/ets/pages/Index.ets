@@ -46,38 +46,141 @@ import {
   providerPresetFor
 } from "../services/CalendarProviderPresets";
 
+// ---- ViewConfig helper: create copy with single field override ----
+function withViewConfig(source: CalendarViewConfig, field: string, value: Object): CalendarViewConfig {
+  return {
+    id: field === "id" ? (value as string) : source.id,
+    defaultView: field === "defaultView" ? (value as string) : source.defaultView,
+    weekStartsOn: field === "weekStartsOn" ? (value as number) : source.weekStartsOn,
+    weekEndsOn: field === "weekEndsOn" ? (value as number) : source.weekEndsOn,
+    minHour: field === "minHour" ? (value as number) : source.minHour,
+    maxHour: field === "maxHour" ? (value as number) : source.maxHour,
+    timeSlotMinutes: field === "timeSlotMinutes" ? (value as number) : source.timeSlotMinutes,
+    maxVisibleEventsPerDay: field === "maxVisibleEventsPerDay" ? (value as number) : source.maxVisibleEventsPerDay,
+    overlapOffset: field === "overlapOffset" ? (value as number) : source.overlapOffset,
+    swipeEnabled: field === "swipeEnabled" ? (value as boolean) : source.swipeEnabled,
+    showWeekNumbers: field === "showWeekNumbers" ? (value as boolean) : source.showWeekNumbers,
+    showSixWeeks: field === "showSixWeeks" ? (value as boolean) : source.showSixWeeks,
+    showAdjacentMonths: field === "showAdjacentMonths" ? (value as boolean) : source.showAdjacentMonths,
+    nowIndicatorVisible: field === "nowIndicatorVisible" ? (value as boolean) : source.nowIndicatorVisible,
+    scrollOffsetMinutes: field === "scrollOffsetMinutes" ? (value as number) : source.scrollOffsetMinutes,
+    hourRowHeight: field === "hourRowHeight" ? (value as number) : source.hourRowHeight,
+    eventMinHeightForMonthView: field === "eventMinHeightForMonthView" ? (value as number) : source.eventMinHeightForMonthView,
+    showAllDayEventCell: field === "showAllDayEventCell" ? (value as boolean) : source.showAllDayEventCell,
+    timeslots: field === "timeslots" ? (value as number) : source.timeslots,
+    monthMoreLabel: field === "monthMoreLabel" ? (value as string) : source.monthMoreLabel,
+    eventOrder: field === "eventOrder" ? (value as string) : source.eventOrder,
+    locale: field === "locale" ? (value as string) : source.locale,
+    hourFormat: field === "hourFormat" ? (value as string) : source.hourFormat,
+    timeZone: field === "timeZone" ? (value as string) : source.timeZone,
+    enabledViewsJson: field === "enabledViewsJson" ? (value as string) : source.enabledViewsJson,
+    agendaEmptyText: field === "agendaEmptyText" ? (value as string) : source.agendaEmptyText,
+    agendaGroupMode: field === "agendaGroupMode" ? (value as string) : source.agendaGroupMode,
+    agendaShowPastDays: field === "agendaShowPastDays" ? (value as boolean) : source.agendaShowPastDays,
+    agendaPastScrollRange: field === "agendaPastScrollRange" ? (value as number) : source.agendaPastScrollRange,
+    agendaFutureScrollRange: field === "agendaFutureScrollRange" ? (value as number) : source.agendaFutureScrollRange,
+    agendaShowOnlySelectedDayItems: field === "agendaShowOnlySelectedDayItems" ? (value as boolean) : source.agendaShowOnlySelectedDayItems,
+    themeMode: field === "themeMode" ? (value as string) : source.themeMode,
+    defaultReminderMinutes: field === "defaultReminderMinutes" ? (value as number) : source.defaultReminderMinutes,
+    reminderSound: field === "reminderSound" ? (value as string) : source.reminderSound,
+    reminderVibrate: field === "reminderVibrate" ? (value as boolean) : source.reminderVibrate,
+    eventKindFilter: field === "eventKindFilter" ? (value as string) : source.eventKindFilter,
+    sourceFilterJson: field === "sourceFilterJson" ? (value as string) : source.sourceFilterJson,
+    hideCancelledEvents: field === "hideCancelledEvents" ? (value as boolean) : source.hideCancelledEvents,
+    showIncompleteTasksOnly: field === "showIncompleteTasksOnly" ? (value as boolean) : source.showIncompleteTasksOnly,
+    businessHoursJson: field === "businessHoursJson" ? (value as string) : source.businessHoursJson,
+    minSelectableDate: field === "minSelectableDate" ? (value as number) : source.minSelectableDate,
+    maxSelectableDate: field === "maxSelectableDate" ? (value as number) : source.maxSelectableDate,
+    disabledDaysIndexesJson: field === "disabledDaysIndexesJson" ? (value as string) : source.disabledDaysIndexesJson,
+    displayLoadingIndicator: field === "displayLoadingIndicator" ? (value as boolean) : source.displayLoadingIndicator,
+    loadedDateRangesJson: field === "loadedDateRangesJson" ? (value as string) : source.loadedDateRangesJson
+  };
+}
+
+// Two-field override helper for minHour+maxHour
+function withMinMaxHour(source: CalendarViewConfig, minHour: number, maxHour: number): CalendarViewConfig {
+  return {
+    id: source.id,
+    defaultView: source.defaultView,
+    weekStartsOn: source.weekStartsOn,
+    weekEndsOn: source.weekEndsOn,
+    minHour: minHour,
+    maxHour: maxHour,
+    timeSlotMinutes: source.timeSlotMinutes,
+    maxVisibleEventsPerDay: source.maxVisibleEventsPerDay,
+    overlapOffset: source.overlapOffset,
+    swipeEnabled: source.swipeEnabled,
+    showWeekNumbers: source.showWeekNumbers,
+    showSixWeeks: source.showSixWeeks,
+    showAdjacentMonths: source.showAdjacentMonths,
+    nowIndicatorVisible: source.nowIndicatorVisible,
+    scrollOffsetMinutes: source.scrollOffsetMinutes,
+    hourRowHeight: source.hourRowHeight,
+    eventMinHeightForMonthView: source.eventMinHeightForMonthView,
+    showAllDayEventCell: source.showAllDayEventCell,
+    timeslots: source.timeslots,
+    monthMoreLabel: source.monthMoreLabel,
+    eventOrder: source.eventOrder,
+    locale: source.locale,
+    hourFormat: source.hourFormat,
+    timeZone: source.timeZone,
+    enabledViewsJson: source.enabledViewsJson,
+    agendaEmptyText: source.agendaEmptyText,
+    agendaGroupMode: source.agendaGroupMode,
+    agendaShowPastDays: source.agendaShowPastDays,
+    agendaPastScrollRange: source.agendaPastScrollRange,
+    agendaFutureScrollRange: source.agendaFutureScrollRange,
+    agendaShowOnlySelectedDayItems: source.agendaShowOnlySelectedDayItems,
+    themeMode: source.themeMode,
+    defaultReminderMinutes: source.defaultReminderMinutes,
+    reminderSound: source.reminderSound,
+    reminderVibrate: source.reminderVibrate,
+    eventKindFilter: source.eventKindFilter,
+    sourceFilterJson: source.sourceFilterJson,
+    hideCancelledEvents: source.hideCancelledEvents,
+    showIncompleteTasksOnly: source.showIncompleteTasksOnly,
+    businessHoursJson: source.businessHoursJson,
+    minSelectableDate: source.minSelectableDate,
+    maxSelectableDate: source.maxSelectableDate,
+    disabledDaysIndexesJson: source.disabledDaysIndexesJson,
+    displayLoadingIndicator: source.displayLoadingIndicator,
+    loadedDateRangesJson: source.loadedDateRangesJson
+  };
+}
+
 const DAY_MS: number = 24 * 60 * 60 * 1000;
 const DEFAULT_CATEGORY_COLOR: string = "#16A37A";
 const RECURRENCE_ID_MARKER: string = "__harmony_recur_";
 const SURFACE_COLOR: string = "#FFFFFF";
-const PAGE_COLOR: string = "#F7F9FB";
-const SOFT_SURFACE_COLOR: string = "#EEF3F6";
-const TINT_SURFACE_COLOR: string = "#E7F5EF";
-const BORDER_COLOR: string = "#E2E8F0";
-const TEXT_PRIMARY: string = "#1B2630";
-const TEXT_SECONDARY: string = "#687480";
-const PRIMARY_COLOR: string = "#169B72";
-const PRIMARY_STRONG_COLOR: string = "#087A5A";
-const PRIMARY_SOFT_COLOR: string = "#E7F5EF";
-const SUCCESS_COLOR: string = "#087A5A";
-const SUCCESS_SOFT_COLOR: string = "#E7F5EF";
-const WARNING_COLOR: string = "#B7791F";
+const PAGE_COLOR: string = "#F2F3F5";
+const SOFT_SURFACE_COLOR: string = "#E9EBEF";
+const TINT_SURFACE_COLOR: string = "#FFF1EE";
+const BORDER_COLOR: string = "#E3E5E8";
+const TEXT_PRIMARY: string = "#171A1F";
+const TEXT_SECONDARY: string = "#8B9099";
+const PRIMARY_COLOR: string = "#FF6548";
+const PRIMARY_STRONG_COLOR: string = "#E95338";
+const PRIMARY_SOFT_COLOR: string = "#FFF1EE";
+const SUCCESS_COLOR: string = "#0E8D68";
+const SUCCESS_SOFT_COLOR: string = "#E9F8F1";
+const WARNING_COLOR: string = "#E6A23C";
 const WARNING_SOFT_COLOR: string = "#FFF4D8";
 const DANGER_COLOR: string = "#D92D20";
 const DANGER_SOFT_COLOR: string = "#FEECEB";
+const DAY_ACCENT_COLOR: string = "#FF6548";
 const TODAY_COLOR: string = PRIMARY_COLOR;
 const TODAY_SOFT_COLOR: string = PRIMARY_SOFT_COLOR;
-const BLUE_COLOR: string = "#2F6FDB";
-const BLUE_SOFT_COLOR: string = "#EBF2FF";
-const CARD_RADIUS: number = 8;
-const CONTROL_RADIUS: number = 8;
-const PILL_RADIUS: number = 8;
+const BLUE_COLOR: string = "#5B7CFF";
+const BLUE_SOFT_COLOR: string = "#EEF2FF";
+const CARD_RADIUS: number = 28;
+const CONTROL_RADIUS: number = 20;
+const PILL_RADIUS: number = 24;
 const BOTTOM_SAFE_PADDING: number = 58;
 const COLOR_PALETTE_CLASSIC: string[] = ["#16A37A", "#2F6FDB", "#D99A21", "#D92D20", "#7C5CDB", "#64748B"];
 const COLOR_PALETTE_SOFT: string[] = ["#36B48F", "#4C7DE7", "#E2A934", "#EF5C4E", "#8B6FE8", "#708090"];
 const COLOR_PALETTE_FOCUS: string[] = ["#087A5A", "#245ABF", "#B7791F", "#B42318", "#6842C2", "#0F766E"];
-const TIME_GRID_START_HOUR: number = 8;
-const TIME_GRID_END_HOUR: number = 21;
+const TIME_GRID_START_HOUR: number = 6;
+const TIME_GRID_END_HOUR: number = 22;
 const TIME_GRID_HEADER_HEIGHT: number = 58;
 const TIME_GRID_HOUR_HEIGHT: number = 64;
 const TIME_GRID_MIN_EVENT_HEIGHT: number = 34;
@@ -241,8 +344,9 @@ struct Index {
   @State private markerTypeInput: string = "dot";
   @State private markerColorInput: string = PRIMARY_COLOR;
   @State private markerEndDateInput: string = "";
+  @State private selectedSourceIdInput: string = "";
   @State private searchKeyword: string = "";
-  @State private scheduleView: string = "day";
+  @State private scheduleView: string = "month";
 	  @State private editingEventId: string = "";
 	  @State private editingOccurrenceStartAt: number = 0;
 	  @State private recurrenceEditScope: string = "series";
@@ -252,7 +356,7 @@ struct Index {
   @State private autoSyncIntervalIndex: number = 2;
   @State private viewConfig: CalendarViewConfig = {
     id: "default",
-    defaultView: "day",
+    defaultView: "month",
     weekStartsOn: 1,
     minHour: TIME_GRID_START_HOUR,
     maxHour: TIME_GRID_END_HOUR,
@@ -269,6 +373,7 @@ struct Index {
 	    eventOrder: "start,title",
 	    locale: "zh-CN",
 	    hourFormat: "24h",
+	    timeZone: "Asia/Shanghai",
 	    enabledViewsJson: "",
 	    agendaEmptyText: "当天没有日程",
 	    agendaGroupMode: "day",
@@ -296,7 +401,8 @@ struct Index {
 	    loadedDateRangesJson: ""
 	  };
   @State private dateMarkers: CalendarDateMarker[] = [];
-
+  @State private settingsRenderKey: number = 0;
+  
   private syncService: CalendarSyncService | null = null;
   private autoSyncTimerId: number = -1;
 
@@ -325,6 +431,7 @@ struct Index {
   build() {
     Column() {
       if (this.appPage === "settings") {
+        Text(this.settingsRenderKey.toString()).fontSize(0).width(0).height(0).visibility(Visibility.None)
         this.NewSettingsPage()
       } else if (this.appPage === "calendars") {
         this.NewSourcesPage()
@@ -358,61 +465,47 @@ struct Index {
   @Builder
   NewTopBar(kicker: string, title: string, showSearchButton: boolean, showAddButton: boolean) {
     Row() {
-      Column() {
-        Text(kicker)
-          .fontSize(13)
-          .fontColor(TEXT_SECONDARY)
-          .fontWeight(FontWeight.Medium)
-          .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-        Text(title)
-          .fontSize(31)
-          .fontColor(TEXT_PRIMARY)
-          .fontWeight(FontWeight.Bold)
-          .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .margin({ top: 2 })
-      }
-      .alignItems(HorizontalAlign.Start)
-      .layoutWeight(1)
+      this.NewSquareIconButton("menu", false)
+
+      Text(title)
+        .fontSize(32)
+        .fontColor(TEXT_PRIMARY)
+        .fontWeight(FontWeight.Bold)
+        .maxLines(1)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
+        .layoutWeight(1)
+        .margin({ left: 18 })
 
       if (showSearchButton) {
-        this.NewSquareIconButton("search", false)
+        this.NewSquareIconButton("today", false)
       }
       if (showAddButton) {
-        this.NewSquareIconButton("add", true)
+        this.NewSquareIconButton("add", false)
       }
+      this.NewSquareIconButton("grid", false)
     }
-    .alignItems(VerticalAlign.Top)
-    .padding({ left: 18, right: 18, top: 14, bottom: 0 })
+    .alignItems(VerticalAlign.Center)
+    .padding({ left: 18, right: 18, top: 14, bottom: 8 })
     .backgroundColor(PAGE_COLOR)
   }
 
   @Builder
   NewSubTopBar(kicker: string, title: string, action: string) {
     Row() {
-      this.NewSquareIconButton("back", false)
-      Column() {
-        Text(kicker)
-          .fontSize(13)
-          .fontColor(TEXT_SECONDARY)
-          .fontWeight(FontWeight.Medium)
-        Text(title)
-          .fontSize(31)
-          .fontColor(TEXT_PRIMARY)
-          .fontWeight(FontWeight.Bold)
-          .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .margin({ top: 2 })
-      }
-      .alignItems(HorizontalAlign.Start)
-      .layoutWeight(1)
-      .margin({ left: 12 })
+      this.NewSquareIconButton(this.appPage === "editor" ? "close" : "back", false)
+      Text(title)
+        .fontSize(30)
+        .fontColor(TEXT_PRIMARY)
+        .fontWeight(FontWeight.Bold)
+        .maxLines(1)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
+        .layoutWeight(1)
+        .margin({ left: 18 })
       if (action.length > 0) {
-        this.NewSquareIconButton(action, action === "save" || action === "add")
+        this.NewSquareIconButton(action, false)
       }
     }
-    .alignItems(VerticalAlign.Top)
+    .alignItems(VerticalAlign.Center)
     .padding({ left: 18, right: 18, top: 18, bottom: 8 })
     .backgroundColor(PAGE_COLOR)
   }
@@ -422,9 +515,44 @@ struct Index {
     Stack() {
       if (kind === "add") {
         Text("+")
-          .fontSize(28)
-          .fontColor("#FFFFFF")
-          .fontWeight(FontWeight.Medium)
+          .fontSize(24)
+          .fontColor(TEXT_PRIMARY)
+          .fontWeight(FontWeight.Regular)
+      } else if (kind === "menu") {
+        Column() {
+          Blank().width(18).height(2.5).backgroundColor(TEXT_PRIMARY).borderRadius(2)
+          Blank().width(18).height(2.5).backgroundColor(TEXT_PRIMARY).borderRadius(2).margin({ top: 5 })
+          Blank().width(18).height(2.5).backgroundColor(TEXT_PRIMARY).borderRadius(2).margin({ top: 5 })
+        }
+      } else if (kind === "grid") {
+        Grid() {
+          ForEach([0, 1, 2, 3], (item: number) => {
+            GridItem() {
+              Row() {
+                Blank()
+                  .width(6)
+                  .height(6)
+                  .backgroundColor(TEXT_PRIMARY)
+                  .borderRadius(3)
+              }
+              .width("100%")
+              .height("100%")
+              .justifyContent(FlexAlign.Center)
+              .alignItems(VerticalAlign.Center)
+            }
+          }, (item: number) => `${item}`)
+        }
+        .width(18)
+        .height(18)
+        .columnsTemplate("1fr 1fr")
+        .rowsTemplate("1fr 1fr")
+        .columnsGap(6)
+        .rowsGap(6)
+      } else if (kind === "today") {
+        Text("今")
+          .fontSize(18)
+          .fontColor(PRIMARY_COLOR)
+          .fontWeight(FontWeight.Bold)
       } else if (kind === "search") {
         this.SearchGlyph()
       } else if (kind === "sync") {
@@ -435,13 +563,13 @@ struct Index {
       } else if (kind === "save") {
         Text("✓")
           .fontSize(24)
-          .fontColor("#FFFFFF")
+          .fontColor(TEXT_SECONDARY)
           .fontWeight(FontWeight.Bold)
       } else if (kind === "close") {
         Text("×")
-          .fontSize(27)
+          .fontSize(24)
           .fontColor(TEXT_PRIMARY)
-          .fontWeight(FontWeight.Medium)
+          .fontWeight(FontWeight.Regular)
       } else {
         Text("<")
           .fontSize(22)
@@ -449,15 +577,20 @@ struct Index {
           .fontWeight(FontWeight.Bold)
       }
     }
-    .width(44)
-    .height(44)
-    .margin({ left: 8 })
-    .backgroundColor(primary ? PRIMARY_COLOR : SOFT_SURFACE_COLOR)
-    .borderRadius(14)
-    .border({ width: primary ? 0 : 0.5, color: BORDER_COLOR })
+    .width(56)
+    .height(56)
+    .margin({ left: kind === "menu" || kind === "back" || kind === "close" ? 0 : 12 })
+    .backgroundColor("#F8F9FB")
+    .borderRadius(28)
+    .border({ width: 1, color: "#FDFDFE" })
+    .shadow({ radius: 18, color: "#14000000", offsetX: 0, offsetY: 6 })
     .onClick(async () => {
       if (kind === "add") {
         this.openNewEvent();
+      } else if (kind === "menu" || kind === "grid") {
+        this.openSettings();
+      } else if (kind === "today") {
+        await this.goToday();
       } else if (kind === "search") {
         this.showSearch = !this.showSearch;
         if (this.showSearch) {
@@ -515,9 +648,13 @@ struct Index {
           if (this.showSearch || this.searchKeyword.trim().length > 0) {
             this.NewSearchBox()
           }
-          this.NewHomeMonthCalendar()
           this.NewViewSwitcher()
-          this.NewScheduleList(this.homeScheduleTitle(), true)
+          this.NewWeekStrip()
+          if (this.scheduleView === "list" || this.searchKeyword.trim().length > 0) {
+            this.NewScheduleList(this.homeScheduleTitle(), true)
+          } else {
+            this.NewDayTimeGrid()
+          }
         }
         .padding({ left: 18, right: 18, top: 0, bottom: 18 })
       }
@@ -531,8 +668,8 @@ struct Index {
     Column() {
       Scroll() {
         Column() {
-          this.NewRangeToolbar()
           this.NewViewSwitcher()
+          this.NewWeekStrip()
           this.NewWeekGrid()
         }
         .padding({ left: 18, right: 18, bottom: 18 })
@@ -547,7 +684,6 @@ struct Index {
     Column() {
       Scroll() {
         Column() {
-          this.NewRangeToolbar()
           this.NewViewSwitcher()
           this.NewMonthCard()
           this.NewScheduleList(`${new Date(this.selectedDay).getMonth() + 1}月${new Date(this.selectedDay).getDate()}日`, true)
@@ -564,7 +700,6 @@ struct Index {
     Column() {
       Scroll() {
         Column() {
-          this.NewRangeToolbar()
           this.NewViewSwitcher()
           this.NewYearGrid()
         }
@@ -588,13 +723,28 @@ struct Index {
         .onChange((value: string) => {
           this.searchKeyword = value;
         })
+      if (this.searchKeyword.trim().length > 0) {
+        Button("清空")
+          .height(34)
+          .width(64)
+          .fontSize(12)
+          .fontColor(PRIMARY_STRONG_COLOR)
+          .fontWeight(FontWeight.Bold)
+          .backgroundColor(PRIMARY_SOFT_COLOR)
+          .borderRadius(CONTROL_RADIUS)
+          .margin({ left: 8 })
+          .onClick(() => {
+            this.searchKeyword = "";
+            this.showSearch = false;
+          })
+      }
     }
-    .height(48)
-    .padding({ left: 12, right: 12 })
-    .margin({ top: 8, bottom: 10 })
+    .height(56)
+    .padding({ left: 16, right: 16 })
+    .margin({ top: 10, bottom: 14 })
     .backgroundColor(SURFACE_COLOR)
-    .borderRadius(CONTROL_RADIUS)
-    .border({ width: 0.5, color: BORDER_COLOR })
+    .borderRadius(24)
+    .border({ width: 1, color: BORDER_COLOR })
   }
 
   @Builder
@@ -604,7 +754,7 @@ struct Index {
         this.NewWeekDayPill(day)
       }, (day: number) => `${day}`)
     }
-    .margin({ top: 0, bottom: 10 })
+    .margin({ top: 4, bottom: 16 })
   }
 
   @Builder
@@ -614,26 +764,182 @@ struct Index {
         .fontSize(11)
         .fontColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : TEXT_SECONDARY)
         .fontWeight(FontWeight.Bold)
+        .onClick(() => this.selectCalendarDay(day))
       Text(`${new Date(day).getDate()}`)
-        .fontSize(17)
+        .fontSize(18)
         .fontColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : TEXT_PRIMARY)
         .fontWeight(FontWeight.Bold)
-        .margin({ top: 5 })
+        .margin({ top: 6 })
+        .onClick(() => this.selectCalendarDay(day))
     }
-    .height(66)
+    .height(88)
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)
     .layoutWeight(1)
-    .backgroundColor(sameDay(day, this.selectedDay) ? PRIMARY_COLOR : SURFACE_COLOR)
-    .borderRadius(16)
-    .border({ width: 0.5, color: sameDay(day, this.selectedDay) ? PRIMARY_COLOR : BORDER_COLOR })
-    .margin({ right: sameDay(day, this.weekDaysForSelectedDay()[6]) ? 0 : 8 })
-    .onClick(() => {
-      this.selectedDay = day;
-      this.visibleMonth = this.monthStart(day);
-      this.startInput = this.defaultStartText();
-      this.endInput = this.defaultEndText();
-    })
+    .backgroundColor(sameDay(day, this.selectedDay) ? DAY_ACCENT_COLOR : "#00000000")
+    .borderRadius(44)
+    .margin({ right: day === this.weekDaysForSelectedDay()[6] ? 0 : 4 })
+    .onClick(() => this.selectCalendarDay(day))
+  }
+
+  @Builder
+  NewDayViewHeader() {
+    Column() {
+      Row() {
+        Text(this.headerTitle())
+          .fontSize(18)
+          .fontColor(TEXT_PRIMARY)
+          .fontWeight(FontWeight.Bold)
+          .layoutWeight(1)
+        Text(`${this.visibleEvents().length} 项`)
+          .fontSize(12)
+          .fontColor(TEXT_SECONDARY)
+          .fontWeight(FontWeight.Bold)
+      }
+      .width("100%")
+      .height(34)
+      .alignItems(VerticalAlign.Center)
+
+      Row() {
+        ForEach(this.weekDaysForSelectedDay(), (day: number) => {
+          this.NewDayHeaderItem(day)
+        }, (day: number) => `${day}`)
+      }
+      .width("100%")
+      .margin({ top: 8 })
+    }
+    .padding({ left: 4, right: 4, top: 14, bottom: 14 })
+  }
+
+  @Builder
+  NewDayHeaderItem(day: number) {
+    Column() {
+      Text(this.weekdayLabel(day))
+        .fontSize(12)
+        .fontColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : TEXT_SECONDARY)
+        .fontWeight(FontWeight.Bold)
+      Text(`${new Date(day).getDate()}`)
+        .fontSize(19)
+        .fontColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : TEXT_PRIMARY)
+        .fontWeight(FontWeight.Bold)
+        .margin({ top: 5 })
+      Blank()
+        .width(4)
+        .height(4)
+        .backgroundColor(this.hasEventsForDay(day) ? (sameDay(day, this.selectedDay) ? "#FFFFFF" : DANGER_COLOR) : "#00000000")
+        .borderRadius(2)
+        .margin({ top: 5 })
+    }
+    .width(46)
+    .height(76)
+    .justifyContent(FlexAlign.Center)
+    .alignItems(HorizontalAlign.Center)
+    .backgroundColor(sameDay(day, this.selectedDay) ? DAY_ACCENT_COLOR : "#00000000")
+    .borderRadius(23)
+    .layoutWeight(1)
+    .onClick(() => this.selectCalendarDay(day, "day"))
+  }
+
+  @Builder
+  NewDayTimeGrid() {
+    Column() {
+      Row() {
+        Text("全天")
+          .fontSize(13)
+          .fontColor(TEXT_SECONDARY)
+          .fontWeight(FontWeight.Bold)
+          .width(46)
+        if (this.allDayEventsForDay(this.selectedDay).length > 0) {
+          Text(this.allDaySummary(this.selectedDay))
+            .fontSize(13)
+            .fontColor(TEXT_PRIMARY)
+            .fontWeight(FontWeight.Bold)
+            .maxLines(1)
+            .textOverflow({ overflow: TextOverflow.Ellipsis })
+            .layoutWeight(1)
+        } else {
+          Blank()
+            .layoutWeight(1)
+        }
+      }
+      .height(52)
+      .padding({ left: 12, right: 12 })
+      .border({ width: { bottom: 1 }, color: "#EFF1F4" })
+
+      Stack({ alignContent: Alignment.TopStart }) {
+        ForEach(this.timeGridHourLabels(), (hour: string) => {
+          Row() {
+            Text(this.dayHourLabel(hour))
+              .fontSize(12)
+              .fontColor(TEXT_SECONDARY)
+              .width(46)
+              .textAlign(TextAlign.Start)
+            Blank()
+              .height(1)
+              .layoutWeight(1)
+              .backgroundColor("#E9EEF2")
+          }
+          .height(TIME_GRID_HOUR_HEIGHT)
+          .width("100%")
+          .position({ x: 0, y: this.hourIndex(hour) * TIME_GRID_HOUR_HEIGHT })
+        }, (hour: string) => `day_line_${hour}`)
+
+        if (this.nowIndicatorVisibleForDay(this.selectedDay)) {
+          Row() {
+            Text(this.nowTimeLabel())
+              .fontSize(11)
+              .fontColor(DAY_ACCENT_COLOR)
+              .fontWeight(FontWeight.Bold)
+              .width(46)
+            Blank()
+              .height(2)
+              .layoutWeight(1)
+              .backgroundColor(DAY_ACCENT_COLOR)
+              .borderRadius(1)
+          }
+          .width("100%")
+          .position({ x: 0, y: this.dayNowIndicatorTop() })
+        }
+
+        ForEach(this.eventLayoutsForDay(this.selectedDay), (layout: TimeGridEventLayout) => {
+          Column() {
+            Text(layout.event.title)
+              .fontSize(12)
+              .fontColor(this.eventCategoryColor(layout.event))
+              .fontWeight(FontWeight.Bold)
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+            Text(this.eventTimeChip(layout.event))
+              .fontSize(11)
+              .fontColor(TEXT_SECONDARY)
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .margin({ top: 2 })
+          }
+          .alignItems(HorizontalAlign.Start)
+          .padding({ left: 8, right: 8, top: 6, bottom: 6 })
+          .height(layout.height)
+          .width(`${Math.floor(90 / layout.columnCount)}%`)
+          .backgroundColor(this.eventChipBackground(layout.event))
+          .borderRadius(8)
+          .border({ width: 1, color: this.eventCategoryColor(layout.event) })
+          .position({ x: `${6 + Math.floor(layout.column * 90 / layout.columnCount)}%`, y: Math.max(0, layout.top - TIME_GRID_HEADER_HEIGHT) })
+          .onClick(() => {
+            this.startEditing(layout.event);
+            this.appPage = "editor";
+            this.showAdvancedEventOptions = true;
+          })
+        }, (layout: TimeGridEventLayout) => `day_${layout.event.id}_${layout.column}_${layout.top}`)
+      }
+      .width("100%")
+      .height((this.timeGridEndHour() - this.timeGridStartHour() + 1) * TIME_GRID_HOUR_HEIGHT)
+      .padding({ left: 10, right: 10 })
+    }
+    .width("100%")
+    .backgroundColor(SURFACE_COLOR)
+    .borderRadius(26)
+    .border({ width: 1, color: BORDER_COLOR })
+    .clip(true)
   }
 
   @Builder
@@ -674,6 +980,7 @@ struct Index {
           GridItem() {
             this.NewHomeMonthCell(day)
           }
+          .onClick(() => this.selectCalendarDay(day))
         }, (day: number) => `${day}`)
       }
       .columnsTemplate("1fr 1fr 1fr 1fr 1fr 1fr 1fr")
@@ -712,83 +1019,73 @@ struct Index {
 
   @Builder
   NewHomeMonthCell(day: number) {
-    Column() {
-      Text(`${new Date(day).getDate()}`)
-        .fontSize(13)
-        .fontColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : this.dayTextColor(day))
-        .fontWeight(FontWeight.Bold)
-      Row() {
-        ForEach(this.dayEventColors(day), (color: string) => {
-          Blank()
-            .width(6)
-            .height(6)
-            .backgroundColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : color)
-            .borderRadius(3)
-            .margin({ right: 3 })
-        }, (color: string) => `${day}_${color}`)
-      }
-      .height(10)
-      .margin({ top: 5 })
-      if (this.monthCellSummary(day).length > 0) {
-        Text(this.monthCellSummary(day))
-          .fontSize(10)
-          .fontColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : TEXT_SECONDARY)
+    Stack({ alignContent: Alignment.Center }) {
+      Column() {
+        Text(this.monthCellButtonText(day))
+          .fontSize(13)
+          .fontColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : this.dayTextColor(day))
+          .fontWeight(FontWeight.Bold)
           .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .width("100%")
           .textAlign(TextAlign.Center)
-          .margin({ top: 3 })
+        Row() {
+          ForEach(this.dayEventColors(day), (color: string) => {
+            Blank()
+              .width(6)
+              .height(6)
+              .backgroundColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : color)
+              .borderRadius(3)
+              .margin({ right: 3 })
+          }, (color: string) => `${day}_${color}`)
+        }
+        .height(10)
+        .margin({ top: 5 })
       }
+      .width("100%")
+      .height("100%")
+      .justifyContent(FlexAlign.Center)
+      .alignItems(HorizontalAlign.Center)
     }
+    .width("100%")
     .height(64)
-    .justifyContent(FlexAlign.Center)
-    .alignItems(HorizontalAlign.Center)
-    .backgroundColor(sameDay(day, this.selectedDay) ? PRIMARY_COLOR : sameDay(day, Date.now()) ? PRIMARY_SOFT_COLOR : "#FBFCFD")
+    .backgroundColor(this.monthCellBackground(day))
     .borderRadius(CONTROL_RADIUS)
-    .border({ width: sameDay(day, this.selectedDay) || sameDay(day, Date.now()) ? 1 : 0.5, color: sameDay(day, this.selectedDay) ? PRIMARY_COLOR : sameDay(day, Date.now()) ? PRIMARY_COLOR : "#EDF2F7" })
+    .border({ width: sameDay(day, this.selectedDay) || sameDay(day, Date.now()) ? 1 : 0.5, color: this.monthCellBorderColor(day) })
     .opacity(this.sameMonth(day, this.visibleMonth) ? 1 : 0.38)
-    .onClick(() => {
-      this.selectedDay = day;
-      this.visibleMonth = this.monthStart(day);
-      this.startInput = this.defaultStartText();
-      this.endInput = this.defaultEndText();
-    })
+    .onClick(() => this.selectCalendarDay(day))
   }
 
   @Builder
   NewViewSwitcher() {
-	    Row() {
-	      this.NewViewButton("今天", "day")
-	      this.NewViewButton("3日", "3days")
-	      this.NewViewButton("工作周", "workweek")
-	      this.NewViewButton("周", "week")
-	      this.NewViewButton("月", "month")
-	      this.NewViewButton("年", "year")
-	    }
-    .height(44)
+    Row() {
+      this.NewViewButton("年", "year")
+      this.NewViewButton("月", "month")
+      this.NewViewButton("周", "week")
+      this.NewViewButton("日", "day")
+    }
+    .width("100%")
+    .height(72)
     .padding(4)
-    .backgroundColor(SOFT_SURFACE_COLOR)
-    .borderRadius(14)
-    .border({ width: 0.5, color: BORDER_COLOR })
-    .margin({ top: 4, bottom: 12 })
+    .backgroundColor("#F6F7F9")
+    .borderRadius(36)
+    .border({ width: 1, color: "#FCFCFD" })
+    .shadow({ radius: 20, color: "#12000000", offsetX: 0, offsetY: 6 })
+    .margin({ top: 8, bottom: 18 })
   }
 
   @Builder
   NewViewButton(label: string, value: string) {
     Button(label)
-      .height(36)
+      .height(64)
+      .width(0)
       .layoutWeight(1)
       .backgroundColor(this.scheduleView === value || (value === "day" && this.scheduleView === "list") ? SURFACE_COLOR : "#00000000")
-      .fontColor(this.scheduleView === value || (value === "day" && this.scheduleView === "list") ? TEXT_PRIMARY : TEXT_SECONDARY)
+      .fontColor(this.scheduleView === value || (value === "day" && this.scheduleView === "list") ? TEXT_PRIMARY : "#4A4F58")
       .fontWeight(FontWeight.Bold)
-      .fontSize(13)
-      .borderRadius(10)
+      .fontSize(16)
+      .borderRadius(32)
       .onClick(async () => {
         this.scheduleView = value;
         this.showSearch = false;
-        if (value === "day") {
-          await this.goToday();
-        }
         if (value === "month") {
           this.visibleMonth = this.monthStart(this.selectedDay);
         } else if (value === "year") {
@@ -869,7 +1166,7 @@ struct Index {
     Column() {
       Row() {
         Text(title)
-          .fontSize(22)
+          .fontSize(24)
           .fontColor(TEXT_PRIMARY)
           .fontWeight(FontWeight.Bold)
           .layoutWeight(1)
@@ -895,7 +1192,7 @@ struct Index {
             .onClick(() => this.openNewEvent())
         }
       }
-      .margin({ top: 4, bottom: 10 })
+      .margin({ top: 4, bottom: 14 })
 
 	      if (this.visibleEvents().length === 0) {
 	        this.NewEmptyState()
@@ -920,11 +1217,11 @@ struct Index {
         .margin({ top: 6 })
     }
     .width("100%")
-    .padding(18)
+    .padding(24)
     .alignItems(HorizontalAlign.Center)
     .backgroundColor(SURFACE_COLOR)
-    .borderRadius(CARD_RADIUS)
-    .border({ width: 0.5, color: BORDER_COLOR })
+    .borderRadius(26)
+    .border({ width: 1, color: BORDER_COLOR })
   }
 
   @Builder
@@ -934,11 +1231,11 @@ struct Index {
         .fontSize(13)
         .fontColor(TEXT_SECONDARY)
         .fontWeight(FontWeight.Bold)
-        .width(56)
+        .width(64)
 
       Column() {
         Text(event.title)
-          .fontSize(16)
+          .fontSize(17)
           .fontColor(TEXT_PRIMARY)
           .fontWeight(FontWeight.Bold)
           .maxLines(1)
@@ -954,18 +1251,18 @@ struct Index {
       .layoutWeight(1)
 
       Blank()
-        .width(10)
-        .height(44)
+        .width(12)
+        .height(50)
         .backgroundColor(this.eventCategoryColor(event))
-        .borderRadius(5)
-        .margin({ left: 10 })
+        .borderRadius(6)
+        .margin({ left: 12 })
     }
-    .height(76)
-    .padding({ left: 12, right: 12 })
-    .margin({ bottom: 10 })
+    .height(94)
+    .padding({ left: 16, right: 16 })
+    .margin({ bottom: 12 })
     .backgroundColor(SURFACE_COLOR)
-    .borderRadius(CARD_RADIUS)
-    .border({ width: 0.5, color: BORDER_COLOR })
+    .borderRadius(28)
+    .border({ width: 1, color: BORDER_COLOR })
     .onClick(() => {
       this.startEditing(event);
       this.appPage = "editor";
@@ -981,9 +1278,9 @@ struct Index {
       .fontWeight(FontWeight.Bold)
       .maxLines(1)
       .textOverflow({ overflow: TextOverflow.Ellipsis })
-      .padding({ left: 7, right: 7, top: 3, bottom: 3 })
-      .backgroundColor(SOFT_SURFACE_COLOR)
-      .borderRadius(8)
+      .padding({ left: 9, right: 9, top: 4, bottom: 4 })
+      .backgroundColor("#F4F5F7")
+      .borderRadius(12)
       .margin({ right: 6 })
   }
 
@@ -1009,7 +1306,7 @@ struct Index {
       this.NewArrowButton(1)
     }
     .height(52)
-    .margin({ top: 6, bottom: 8 })
+    .margin({ top: 6, bottom: 12 })
   }
 
   @Builder
@@ -1020,11 +1317,11 @@ struct Index {
         .fontColor(TEXT_PRIMARY)
         .fontWeight(FontWeight.Bold)
     }
-    .width(44)
-    .height(44)
-    .backgroundColor(SOFT_SURFACE_COLOR)
-    .borderRadius(14)
-    .border({ width: 0.5, color: BORDER_COLOR })
+    .width(52)
+    .height(52)
+    .backgroundColor(SURFACE_COLOR)
+    .borderRadius(26)
+    .border({ width: 1, color: BORDER_COLOR })
     .onClick(async () => await this.moveVisibleRange(direction))
   }
 
@@ -1145,61 +1442,54 @@ struct Index {
           GridItem() {
             this.NewMonthCell(day)
           }
+          .onClick(() => this.selectCalendarDay(day, "month"))
         }, (day: number) => `${day}`)
       }
       .columnsTemplate("1fr 1fr 1fr 1fr 1fr 1fr 1fr")
       .columnsGap(5)
       .rowsGap(5)
     }
-    .padding(12)
+    .padding({ left: 14, right: 14, top: 12, bottom: 12 })
     .backgroundColor(SURFACE_COLOR)
-    .borderRadius(CARD_RADIUS)
-    .border({ width: 0.5, color: BORDER_COLOR })
+    .borderRadius(26)
+    .border({ width: 1, color: BORDER_COLOR })
   }
 
   @Builder
   NewMonthCell(day: number) {
-    Column() {
-      Text(`${new Date(day).getDate()}`)
-        .fontSize(12)
-        .fontColor(this.dayTextColor(day))
-        .fontWeight(FontWeight.Bold)
-      Row() {
-        ForEach(this.dayEventColors(day), (color: string) => {
-          Blank()
-            .width(6)
-            .height(6)
-            .backgroundColor(color)
-            .borderRadius(3)
-            .margin({ right: 3 })
-        }, (color: string) => `${day}_${color}`)
-      }
-      .height(10)
-      .margin({ top: 4 })
-      if (this.monthCellSummary(day).length > 0) {
-        Text(this.monthCellSummary(day))
-          .fontSize(10)
-          .fontColor(TEXT_SECONDARY)
+    Stack({ alignContent: Alignment.Center }) {
+      Column() {
+        Text(this.monthCellButtonText(day))
+          .fontSize(12)
+          .fontColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : this.dayTextColor(day))
+          .fontWeight(FontWeight.Bold)
           .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .width("100%")
           .textAlign(TextAlign.Center)
-          .margin({ top: 3 })
+        Row() {
+          ForEach(this.dayEventColors(day), (color: string) => {
+            Blank()
+              .width(6)
+              .height(6)
+              .backgroundColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : color)
+              .borderRadius(3)
+              .margin({ right: 3 })
+          }, (color: string) => `month_${day}_${color}`)
+        }
+        .height(10)
+        .margin({ top: 5 })
       }
+      .width("100%")
+      .height("100%")
+      .justifyContent(FlexAlign.Center)
+      .alignItems(HorizontalAlign.Center)
     }
-    .height(64)
-    .justifyContent(FlexAlign.Center)
-    .alignItems(HorizontalAlign.Center)
-    .backgroundColor(sameDay(day, this.selectedDay) ? PRIMARY_SOFT_COLOR : "#FBFCFD")
-    .borderRadius(CONTROL_RADIUS)
-    .border({ width: sameDay(day, this.selectedDay) ? 1 : 0.5, color: sameDay(day, this.selectedDay) ? PRIMARY_COLOR : "#EDF2F7" })
+    .width("100%")
+    .height(76)
+    .backgroundColor(this.monthCellBackground(day))
+    .borderRadius(22)
+    .border({ width: sameDay(day, this.selectedDay) ? 0 : 0, color: this.monthCellBorderColor(day) })
     .opacity(this.sameMonth(day, this.visibleMonth) ? 1 : 0.4)
-    .onClick(() => {
-      this.selectedDay = day;
-      this.scheduleView = "month";
-      this.startInput = this.defaultStartText();
-      this.endInput = this.defaultEndText();
-    })
+    .onClick(() => this.selectCalendarDay(day, "month"))
   }
 
   @Builder
@@ -1212,8 +1502,8 @@ struct Index {
       }, (month: number) => `${month}`)
     }
     .columnsTemplate("1fr 1fr")
-    .columnsGap(12)
-    .rowsGap(12)
+    .columnsGap(14)
+    .rowsGap(14)
   }
 
   @Builder
@@ -1227,16 +1517,23 @@ struct Index {
       Grid() {
         ForEach(this.compactMonthDays(month), (day: number) => {
           GridItem() {
-            Row() {
+            Column() {
+              Text(`${new Date(day).getDate()}`)
+                .fontSize(9)
+                .fontColor(this.sameMonth(day, month) ? TEXT_PRIMARY : "#CBD5E1")
+                .fontWeight(FontWeight.Medium)
+                .textAlign(TextAlign.Center)
               Blank()
-                .width(14)
-                .height(14)
+                .width(10)
+                .height(3)
                 .backgroundColor(this.miniMonthDotColor(day, month))
-                .borderRadius(5)
-                .opacity(this.sameMonth(day, month) ? 1 : 0.35)
+                .borderRadius(2)
+                .margin({ top: 2 })
             }
             .width("100%")
+            .height(18)
             .justifyContent(FlexAlign.Center)
+            .alignItems(HorizontalAlign.Center)
           }
         }, (day: number) => `${month}_${day}`)
       }
@@ -1245,11 +1542,11 @@ struct Index {
       .rowsGap(5)
       .margin({ top: 8 })
     }
-    .height(148)
-    .padding(10)
+    .height(160)
+    .padding(12)
     .backgroundColor(SURFACE_COLOR)
-    .borderRadius(CARD_RADIUS)
-    .border({ width: 0.5, color: sameDay(month, this.monthStart(this.selectedDay)) ? PRIMARY_COLOR : BORDER_COLOR })
+    .borderRadius(24)
+    .border({ width: 1, color: sameDay(month, this.monthStart(this.selectedDay)) ? PRIMARY_COLOR : BORDER_COLOR })
     .onClick(() => {
       this.visibleMonth = month;
       this.selectedDay = month;
@@ -1265,12 +1562,13 @@ struct Index {
       this.NewBottomNavItem("calendars", "日历源", active)
       this.NewBottomNavItem("settings", "设置", active)
     }
-    .height(66)
-    .padding(8)
-    .margin({ left: 18, right: 18, top: 10, bottom: 78 })
-    .backgroundColor(SURFACE_COLOR)
-    .borderRadius(20)
-    .border({ width: 0.5, color: BORDER_COLOR })
+    .height(68)
+    .padding(6)
+    .margin({ left: 18, right: 18, top: 12, bottom: 78 })
+    .backgroundColor("#F9FAFB")
+    .borderRadius(34)
+    .border({ width: 1, color: "#FCFCFD" })
+    .shadow({ radius: 22, color: "#16000000", offsetX: 0, offsetY: 6 })
   }
 
   @Builder
@@ -1283,12 +1581,12 @@ struct Index {
         .fontWeight(FontWeight.Bold)
         .margin({ top: 2 })
     }
-    .height(50)
+    .height(56)
     .layoutWeight(1)
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)
-    .backgroundColor(active === value ? TINT_SURFACE_COLOR : "#00000000")
-    .borderRadius(14)
+    .backgroundColor(active === value ? PRIMARY_SOFT_COLOR : "#00000000")
+    .borderRadius(28)
     .onClick(async () => {
       if (value === "calendar") {
         await this.goToday();
@@ -1297,7 +1595,8 @@ struct Index {
       } else if (value === "views") {
         this.appPage = "calendar";
         if (this.scheduleView === "day" || this.scheduleView === "list") {
-          this.scheduleView = "week";
+          this.scheduleView = "month";
+          this.visibleMonth = this.monthStart(this.selectedDay);
         }
       } else if (value === "calendars") {
         this.appPage = "calendars";
@@ -1385,7 +1684,7 @@ struct Index {
           }
           this.NewAccountList()
         }
-        .height("100%")
+        .width("100%")
         .justifyContent(FlexAlign.Start)
         .padding({ left: 18, right: 18, bottom: 18 })
       }
@@ -1450,13 +1749,10 @@ struct Index {
 	          .onClick(() => this.newAccountForm())
 	      }
 	      .margin({ top: 16, bottom: 10 })
-	      this.NewSubscriptionTools()
 
 	      if (this.sources.length === 0) {
         this.NewEmptyAccountState()
       } else {
-        this.NewRemoteSourceTools()
-        this.NewResourceTools()
         ForEach(this.sources, (source: CalendarSource) => {
           this.NewSourceRow(source)
         }, (source: CalendarSource) => source.id ?? source.collectionUrl)
@@ -1819,24 +2115,12 @@ struct Index {
 	          .maxLines(1)
 	          .textOverflow({ overflow: TextOverflow.Ellipsis })
 	          .margin({ top: 5 })
-	        Text(this.sourceCapabilityMeta(source))
+	        Text(`颜色 ${this.sourceColor(source)} · ${this.sourceEventCount(source)} 项日程`)
 	          .fontSize(11)
 	          .fontColor(TEXT_SECONDARY)
 	          .maxLines(1)
 	          .textOverflow({ overflow: TextOverflow.Ellipsis })
-	          .margin({ top: 3 })
-	        Text(this.sourceShareMeta(source))
-	          .fontSize(11)
-	          .fontColor(TEXT_SECONDARY)
-	          .maxLines(1)
-	          .textOverflow({ overflow: TextOverflow.Ellipsis })
-	          .margin({ top: 3 })
-	        Text(this.sourceResourceMeta(source))
-	          .fontSize(11)
-	          .fontColor(TEXT_SECONDARY)
-	          .maxLines(1)
-	          .textOverflow({ overflow: TextOverflow.Ellipsis })
-	          .margin({ top: 3 })
+	          .margin({ top: 4 })
 	      }
       .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
@@ -1880,64 +2164,31 @@ struct Index {
 		          .borderRadius(CONTROL_RADIUS)
 		          .margin({ top: 2 })
 		          .onClick(async () => await this.toggleSourceFilter(source))
-		        Button("删除")
-	          .height(30)
-	          .width(62)
-	          .fontSize(12)
-	          .fontColor(DANGER_COLOR)
-	          .backgroundColor("#00000000")
-	          .borderRadius(CONTROL_RADIUS)
-	          .margin({ top: 2 })
-	          .onClick(async () => await this.removeSource(source))
-		        if (source.sourceType === "caldav") {
-		          Button("远端删")
-		            .height(30)
-		            .width(62)
-		            .fontSize(12)
-		            .fontColor(DANGER_COLOR)
-		            .backgroundColor("#00000000")
-		            .borderRadius(CONTROL_RADIUS)
-		            .margin({ top: 2 })
-		            .onClick(async () => await this.removeRemoteSource(source))
-		          if (this.remoteDeleteConfirmSourceId === (source.id ?? "")) {
-		            Button("确认删")
-		              .height(30)
-		              .width(62)
-		              .fontSize(12)
-		              .fontColor("#FFFFFF")
-		              .backgroundColor(DANGER_COLOR)
-		              .borderRadius(CONTROL_RADIUS)
-		              .margin({ top: 2 })
-		              .onClick(async () => await this.confirmRemoveRemoteSource(source))
-		          }
-		          Button("改名")
-		            .height(30)
-		            .width(62)
-		            .fontSize(12)
-		            .fontColor(PRIMARY_STRONG_COLOR)
-		            .backgroundColor("#00000000")
-		            .borderRadius(CONTROL_RADIUS)
-		            .margin({ top: 2 })
-		            .onClick(async () => await this.renameRemoteSource(source))
-		          Button("共享")
-		            .height(30)
-		            .width(62)
-		            .fontSize(12)
-		            .fontColor(PRIMARY_STRONG_COLOR)
-		            .backgroundColor("#00000000")
-		            .borderRadius(CONTROL_RADIUS)
-		            .margin({ top: 2 })
-		            .onClick(async () => await this.addSourceShareMember(source))
-		        }
-	        Button(this.sourceRefreshButtonLabel(source))
-	          .height(30)
-	          .width(62)
-	          .fontSize(12)
-	          .fontColor(TEXT_SECONDARY)
-	          .backgroundColor("#00000000")
-	          .borderRadius(CONTROL_RADIUS)
-	          .margin({ top: 2 })
-	          .onClick(async () => await this.cycleSourceRefreshPolicy(source))
+		        Button("换色")
+		          .height(30)
+		          .width(62)
+		          .fontSize(12)
+		          .fontColor(PRIMARY_STRONG_COLOR)
+		          .backgroundColor("#00000000")
+		          .borderRadius(CONTROL_RADIUS)
+		          .margin({ top: 2 })
+		          .onClick(async () => await this.cycleSourceColor(source))
+			        Button(this.remoteDeleteConfirmSourceId === (source.id ?? "") ? "确认删" : "删除")
+		          .height(30)
+		          .width(62)
+		          .fontSize(12)
+		          .fontColor(this.remoteDeleteConfirmSourceId === (source.id ?? "") ? "#FFFFFF" : DANGER_COLOR)
+		          .backgroundColor(this.remoteDeleteConfirmSourceId === (source.id ?? "") ? DANGER_COLOR : "#00000000")
+		          .borderRadius(CONTROL_RADIUS)
+		          .margin({ top: 2 })
+		          .onClick(async () => {
+		            if (this.remoteDeleteConfirmSourceId === (source.id ?? "")) {
+		              await this.removeSource(source);
+		            } else {
+		              this.remoteDeleteConfirmSourceId = source.id ?? "";
+		              this.syncStatus = `再次点击确认删除本地日历源：${source.name}`;
+		            }
+		          })
 	      }
       .alignItems(HorizontalAlign.Center)
     }
@@ -2087,7 +2338,7 @@ struct Index {
         })
 
       this.FieldLabel("用户名")
-      TextInput({ text: this.username, placeholder: "name@example.com" })
+      TextInput({ text: this.username, placeholder: this.accountUsernamePlaceholder() })
         .height(48)
         .fontSize(14)
         .fontColor(TEXT_PRIMARY)
@@ -2099,7 +2350,7 @@ struct Index {
         })
 
       this.FieldLabel("密码")
-      TextInput({ text: this.password, placeholder: "应用专用密码" })
+      TextInput({ text: this.password, placeholder: this.accountPasswordPlaceholder() })
         .height(48)
         .fontSize(14)
         .fontColor(TEXT_PRIMARY)
@@ -2112,10 +2363,10 @@ struct Index {
 
       this.FieldLabel("认证方式")
       Row() {
-        this.NewConfigButton("Basic", "auth:basic", this.authTypeInput === "basic")
-        this.NewConfigButton("Bearer", "auth:bearer", this.authTypeInput === "bearer")
-        this.NewConfigButton("无认证", "auth:none", this.authTypeInput === "none")
-        this.NewConfigButton("自定义", "auth:custom", this.authTypeInput === "custom")
+        ConfigButton({ label: "Basic", value: "auth:basic", active: this.authTypeInput === "basic", onClickAction: (v) => this.updateViewConfig(v) })
+        ConfigButton({ label: "Bearer", value: "auth:bearer", active: this.authTypeInput === "bearer", onClickAction: (v) => this.updateViewConfig(v) })
+        ConfigButton({ label: "无认证", value: "auth:none", active: this.authTypeInput === "none", onClickAction: (v) => this.updateViewConfig(v) })
+        ConfigButton({ label: "自定义", value: "auth:custom", active: this.authTypeInput === "custom", onClickAction: (v) => this.updateViewConfig(v) })
       }
       .margin({ top: 8 })
 
@@ -2188,12 +2439,12 @@ struct Index {
   @Builder
   NewSettingsPage() {
     Column() {
-      this.NewTopBar("偏好与系统", "设置", false, false)
+      this.NewSubTopBar("偏好与系统", "设置", "")
       Scroll() {
         Column() {
+          this.NewSectionCaption("日历视图")
           this.NewSettingsGroup()
-          this.NewViewConfigGroup()
-          this.NewDateMarkerGroup()
+          this.NewSectionCaption("同步与存储")
           this.NewSyncSettingsGroup()
         }
         .padding({ left: 18, right: 18, bottom: 18 })
@@ -2207,146 +2458,123 @@ struct Index {
   @Builder
   NewSettingsGroup() {
     Column() {
-	      this.NewSettingRow("默认打开视图", this.viewConfig.defaultView, false)
-	      this.NewSettingRow("每周开始于", this.viewConfig.weekStartsOn === 0 ? "周日" : "周一", false)
-	      this.NewSettingRow("默认提醒", `提前 ${this.viewConfig.defaultReminderMinutes ?? 15} 分钟`, false)
-	      this.NewSettingRow("时区", "Asia/Shanghai", false)
+        Text(this.settingsRenderKey.toString()).fontSize(0).width(0).height(0).visibility(Visibility.None)
+	      this.NewSettingSelectRow("默认打开视图", "进入应用时优先显示的视图", this.defaultViewLabel(), this.defaultViewSelectOptions(), this.defaultViewSelectIndex(), "defaultView")
+	      this.NewSettingSelectRow("每周开始于", "影响周视图和月历周序", this.weekStartLabel(), this.weekStartSelectOptions(), this.weekStartSelectIndex(), "weekStart")
+	      this.NewSettingSelectRow("默认提醒", "新建日程默认提醒时间", this.defaultReminderLabel(), this.defaultReminderSelectOptions(), this.defaultReminderSelectIndex(), "defaultReminder")
+	      this.NewSettingSelectRow("时区", "新建日程默认使用的 TZID", this.currentTimeZoneLabel(), this.timeZoneSelectOptions(), this.timeZoneSelectIndex(), "timeZone")
 	      Row() {
-	        this.NewConfigButton("提醒15", "defaultReminder:15", (this.viewConfig.defaultReminderMinutes ?? 15) === 15)
-	        this.NewConfigButton("提醒30", "defaultReminder:30", (this.viewConfig.defaultReminderMinutes ?? 15) === 30)
-	        this.NewConfigButton("不提醒", "defaultReminder:0", (this.viewConfig.defaultReminderMinutes ?? 15) === 0)
+	        ConfigButton({ label: "系统主题", value: "theme:system", active: (this.viewConfig.themeMode ?? "system") === "system", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "浅色", value: "theme:light", active: this.viewConfig.themeMode === "light", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "深色", value: "theme:dark", active: this.viewConfig.themeMode === "dark", onClickAction: (v) => this.updateViewConfig(v) })
 	      }
 	      .height(48)
 	      .padding({ left: 12, right: 12, top: 8 })
 	      Row() {
-	        this.NewConfigButton("系统主题", "theme:system", (this.viewConfig.themeMode ?? "system") === "system")
-	        this.NewConfigButton("浅色", "theme:light", this.viewConfig.themeMode === "light")
-	        this.NewConfigButton("深色", "theme:dark", this.viewConfig.themeMode === "dark")
-	      }
-	      .height(48)
-	      .padding({ left: 12, right: 12, top: 8 })
-	      Row() {
-	        this.NewConfigButton(this.viewConfig.reminderVibrate === false ? "震动关" : "震动开", "vibrate", this.viewConfig.reminderVibrate !== false)
-	        this.NewConfigButton("默认铃声", "sound:default", (this.viewConfig.reminderSound ?? "default") === "default")
-	        this.NewConfigButton("轻提示", "sound:soft", this.viewConfig.reminderSound === "soft")
+	        ConfigButton({ label: this.viewConfig.reminderVibrate === false ? "震动关" : "震动开", value: "vibrate", active: this.viewConfig.reminderVibrate !== false, onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "默认铃声", value: "sound:default", active: (this.viewConfig.reminderSound ?? "default") === "default", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "轻提示", value: "sound:soft", active: this.viewConfig.reminderSound === "soft", onClickAction: (v) => this.updateViewConfig(v) })
 	      }
 	      .height(48)
 	      .padding({ left: 12, right: 12, top: 8, bottom: 12 })
 	    }
-    .margin({ top: 12 })
+    .margin({ top: 6 })
     .backgroundColor(SURFACE_COLOR)
-    .borderRadius(CARD_RADIUS)
-    .border({ width: 0.5, color: BORDER_COLOR })
+    .borderRadius(28)
+    .border({ width: 1, color: BORDER_COLOR })
   }
 
   @Builder
   NewViewConfigGroup() {
     Column() {
+        Text(this.settingsRenderKey.toString()).fontSize(0).width(0).height(0).visibility(Visibility.None)
       Text("视图配置")
         .fontSize(18)
         .fontColor(TEXT_PRIMARY)
         .fontWeight(FontWeight.Bold)
         .padding({ left: 12, right: 12, top: 12 })
       Row() {
-        this.NewConfigButton("日", "day", this.viewConfig.defaultView === "day")
-        this.NewConfigButton("周", "week", this.viewConfig.defaultView === "week")
-        this.NewConfigButton("月", "month", this.viewConfig.defaultView === "month")
+        ConfigButton({ label: "08-21", value: "hours:8:21", active: this.viewConfig.minHour === 8 && this.viewConfig.maxHour === 21, onClickAction: (v) => this.updateViewConfig(v) })
+        ConfigButton({ label: "06-22", value: "hours:6:22", active: this.viewConfig.minHour === 6 && this.viewConfig.maxHour === 22, onClickAction: (v) => this.updateViewConfig(v) })
+        ConfigButton({ label: "全天", value: "hours:0:23", active: this.viewConfig.minHour === 0 && this.viewConfig.maxHour === 23, onClickAction: (v) => this.updateViewConfig(v) })
       }
       .height(48)
       .padding({ left: 12, right: 12, top: 8 })
       Row() {
-        this.NewConfigButton("08-21", "hours:8:21", this.viewConfig.minHour === 8 && this.viewConfig.maxHour === 21)
-        this.NewConfigButton("06-22", "hours:6:22", this.viewConfig.minHour === 6 && this.viewConfig.maxHour === 22)
-        this.NewConfigButton("全天", "hours:0:23", this.viewConfig.minHour === 0 && this.viewConfig.maxHour === 23)
-      }
-      .height(48)
-      .padding({ left: 12, right: 12, top: 8 })
+	        ConfigButton({ label: "点数3", value: "dots:3", active: this.viewConfig.maxVisibleEventsPerDay === 3, onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "点数5", value: "dots:5", active: this.viewConfig.maxVisibleEventsPerDay === 5, onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: this.viewConfig.swipeEnabled ? "滑动开" : "滑动关", value: "swipe", active: this.viewConfig.swipeEnabled, onClickAction: (v) => this.updateViewConfig(v) })
+	      }
+	      .height(48)
+	      .padding({ left: 12, right: 12, top: 8 })
       Row() {
-	        this.NewConfigButton("点数3", "dots:3", this.viewConfig.maxVisibleEventsPerDay === 3)
-	        this.NewConfigButton("点数5", "dots:5", this.viewConfig.maxVisibleEventsPerDay === 5)
-	        this.NewConfigButton(this.viewConfig.swipeEnabled ? "滑动开" : "滑动关", "swipe", this.viewConfig.swipeEnabled)
+	        ConfigButton({ label: (this.viewConfig.weekEndsOn ?? 0) === 0 ? "周末到周日" : "周末到周六", value: "weekEnd", active: (this.viewConfig.weekEndsOn ?? 0) === 0, onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: this.viewConfig.showSixWeeks === false ? "动态周数" : "固定六周", value: "sixWeeks", active: this.viewConfig.showSixWeeks !== false, onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: (this.viewConfig.hourFormat ?? "24h") === "24h" ? "24小时" : "12小时", value: "hourFormat", active: (this.viewConfig.hourFormat ?? "24h") === "24h", onClickAction: (v) => this.updateViewConfig(v) })
+      }
+	      .height(48)
+	      .padding({ left: 12, right: 12, top: 8 })
+	      Row() {
+	        ConfigButton({ label: "中文", value: "locale:zh-CN", active: (this.viewConfig.locale ?? "zh-CN") === "zh-CN", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "English", value: "locale:en-US", active: this.viewConfig.locale === "en-US", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "全视图", value: "views:all", active: (this.viewConfig.enabledViewsJson ?? "").length === 0, onClickAction: (v) => this.updateViewConfig(v) })
 	      }
 	      .height(48)
 	      .padding({ left: 12, right: 12, top: 8 })
 	      Row() {
-	        this.NewConfigButton((this.viewConfig.weekEndsOn ?? 0) === 0 ? "周末到周日" : "周末到周六", "weekEnd", (this.viewConfig.weekEndsOn ?? 0) === 0)
-	        this.NewConfigButton(this.viewConfig.showSixWeeks === false ? "动态周数" : "固定六周", "sixWeeks", this.viewConfig.showSixWeeks !== false)
-	        this.NewConfigButton((this.viewConfig.hourFormat ?? "24h") === "24h" ? "24小时" : "12小时", "hourFormat", (this.viewConfig.hourFormat ?? "24h") === "24h")
+	        ConfigButton({ label: "全部类型", value: "kind:all", active: (this.viewConfig.eventKindFilter ?? "all") === "all", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "任务", value: "kind:task", active: this.viewConfig.eventKindFilter === "task", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "预约", value: "kind:appointment", active: this.viewConfig.eventKindFilter === "appointment", onClickAction: (v) => this.updateViewConfig(v) })
 	      }
 	      .height(48)
 	      .padding({ left: 12, right: 12, top: 8 })
 	      Row() {
-	        this.NewConfigButton("中文", "locale:zh-CN", (this.viewConfig.locale ?? "zh-CN") === "zh-CN")
-	        this.NewConfigButton("English", "locale:en-US", this.viewConfig.locale === "en-US")
-	        this.NewConfigButton("全视图", "views:all", (this.viewConfig.enabledViewsJson ?? "").length === 0)
+	        ConfigButton({ label: "专注", value: "kind:focus", active: this.viewConfig.eventKindFilter === "focus", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "提醒", value: "kind:reminder", active: this.viewConfig.eventKindFilter === "reminder", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: "日历", value: "kind:calendar", active: this.viewConfig.eventKindFilter === "calendar", onClickAction: (v) => this.updateViewConfig(v) })
 	      }
 	      .height(48)
 	      .padding({ left: 12, right: 12, top: 8 })
 	      Row() {
-	        this.NewConfigButton("全部类型", "kind:all", (this.viewConfig.eventKindFilter ?? "all") === "all")
-	        this.NewConfigButton("任务", "kind:task", this.viewConfig.eventKindFilter === "task")
-	        this.NewConfigButton("预约", "kind:appointment", this.viewConfig.eventKindFilter === "appointment")
+	        ConfigButton({ label: this.viewConfig.hideCancelledEvents === true ? "隐藏取消" : "显示取消", value: "hideCancelled", active: this.viewConfig.hideCancelledEvents === true, onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: this.viewConfig.showIncompleteTasksOnly === true ? "仅未完成" : "全部任务", value: "incompleteTasks", active: this.viewConfig.showIncompleteTasksOnly === true, onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: this.activeSourceFilterIds().length > 0 ? "清源过滤" : "全部源", value: "clearSourceFilter", active: this.activeSourceFilterIds().length === 0, onClickAction: (v) => this.updateViewConfig(v) })
 	      }
 	      .height(48)
 	      .padding({ left: 12, right: 12, top: 8 })
 	      Row() {
-	        this.NewConfigButton("专注", "kind:focus", this.viewConfig.eventKindFilter === "focus")
-	        this.NewConfigButton("提醒", "kind:reminder", this.viewConfig.eventKindFilter === "reminder")
-	        this.NewConfigButton("日历", "kind:calendar", this.viewConfig.eventKindFilter === "calendar")
+	        ConfigButton({ label: this.viewConfig.showAdjacentMonths === false ? "隐藏邻月" : "显示邻月", value: "adjacentMonths", active: this.viewConfig.showAdjacentMonths !== false, onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: this.viewConfig.nowIndicatorVisible === false ? "隐藏当前线" : "显示当前线", value: "nowIndicator", active: this.viewConfig.nowIndicatorVisible !== false, onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: (this.viewConfig.scrollOffsetMinutes ?? 480) === 480 ? "滚动08:00" : "滚动06:00", value: "scrollOffset", active: (this.viewConfig.scrollOffsetMinutes ?? 480) === 480, onClickAction: (v) => this.updateViewConfig(v) })
 	      }
 	      .height(48)
 	      .padding({ left: 12, right: 12, top: 8 })
 	      Row() {
-	        this.NewConfigButton(this.viewConfig.hideCancelledEvents === true ? "隐藏取消" : "显示取消", "hideCancelled", this.viewConfig.hideCancelledEvents === true)
-	        this.NewConfigButton(this.viewConfig.showIncompleteTasksOnly === true ? "仅未完成" : "全部任务", "incompleteTasks", this.viewConfig.showIncompleteTasksOnly === true)
-	        this.NewConfigButton(this.activeSourceFilterIds().length > 0 ? "清源过滤" : "全部源", "clearSourceFilter", this.activeSourceFilterIds().length === 0)
+	        ConfigButton({ label: (this.viewConfig.monthMoreLabel ?? "更多") === "更多" ? "更多" : "+N", value: "monthMoreLabel", active: (this.viewConfig.monthMoreLabel ?? "更多") === "更多", onClickAction: (v) => this.updateViewConfig(v) })
+        ConfigButton({ label: (this.viewConfig.eventOrder ?? "start,title") === "start,title" ? "开始排序" : "标题排序", value: "eventOrder", active: (this.viewConfig.eventOrder ?? "start,title") === "start,title", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: this.viewConfig.agendaShowPastDays === true ? "Agenda含过去" : "Agenda今天后", value: "agendaPast", active: this.viewConfig.agendaShowPastDays === true, onClickAction: (v) => this.updateViewConfig(v) })
 	      }
 	      .height(48)
 	      .padding({ left: 12, right: 12, top: 8 })
 	      Row() {
-	        this.NewConfigButton(this.viewConfig.showAdjacentMonths === false ? "隐藏邻月" : "显示邻月", "adjacentMonths", this.viewConfig.showAdjacentMonths !== false)
-	        this.NewConfigButton(this.viewConfig.nowIndicatorVisible === false ? "隐藏当前线" : "显示当前线", "nowIndicator", this.viewConfig.nowIndicatorVisible !== false)
-	        this.NewConfigButton((this.viewConfig.scrollOffsetMinutes ?? 480) === 480 ? "滚动08:00" : "滚动06:00", "scrollOffset", (this.viewConfig.scrollOffsetMinutes ?? 480) === 480)
-	      }
-	      .height(48)
-	      .padding({ left: 12, right: 12, top: 8 })
-	      Row() {
-	        this.NewConfigButton((this.viewConfig.monthMoreLabel ?? "更多") === "更多" ? "更多" : "+N", "monthMoreLabel", (this.viewConfig.monthMoreLabel ?? "更多") === "更多")
-	        this.NewConfigButton((this.viewConfig.eventOrder ?? "start,title") === "start,title" ? "开始排序" : "标题排序", "eventOrder", (this.viewConfig.eventOrder ?? "start,title") === "start,title")
-	        this.NewConfigButton(this.viewConfig.agendaShowPastDays === true ? "Agenda含过去" : "Agenda今天后", "agendaPast", this.viewConfig.agendaShowPastDays === true)
-	      }
-	      .height(48)
-	      .padding({ left: 12, right: 12, top: 8 })
-	      Row() {
-	        this.NewConfigButton((this.viewConfig.agendaGroupMode ?? "day") === "day" ? "按天分组" : "按源分组", "agendaGroup", (this.viewConfig.agendaGroupMode ?? "day") === "day")
-	        this.NewConfigButton((this.viewConfig.agendaEmptyText ?? "当天没有日程") === "当天没有日程" ? "空文案短" : "空文案长", "agendaEmpty", (this.viewConfig.agendaEmptyText ?? "当天没有日程") === "当天没有日程")
+	        ConfigButton({ label: (this.viewConfig.agendaGroupMode ?? "day") === "day" ? "按天分组" : "按源分组", value: "agendaGroup", active: (this.viewConfig.agendaGroupMode ?? "day") === "day", onClickAction: (v) => this.updateViewConfig(v) })
+	        ConfigButton({ label: (this.viewConfig.agendaEmptyText ?? "当天没有日程") === "当天没有日程" ? "空文案短" : "空文案长", value: "agendaEmpty", active: (this.viewConfig.agendaEmptyText ?? "当天没有日程") === "当天没有日程", onClickAction: (v) => this.updateViewConfig(v) })
 	      }
 	      .height(48)
 	      .padding({ left: 12, right: 12, top: 8, bottom: 12 })
 	    }
-    .margin({ top: 12 })
     .backgroundColor(SURFACE_COLOR)
     .borderRadius(CARD_RADIUS)
     .border({ width: 0.5, color: BORDER_COLOR })
   }
 
-  @Builder
-  NewConfigButton(label: string, value: string, active: boolean) {
-    Button(label)
-      .height(38)
-      .layoutWeight(1)
-      .backgroundColor(active ? PRIMARY_SOFT_COLOR : SOFT_SURFACE_COLOR)
-      .fontColor(active ? PRIMARY_STRONG_COLOR : TEXT_SECONDARY)
-      .fontWeight(FontWeight.Bold)
-      .borderRadius(CONTROL_RADIUS)
-      .fontSize(13)
-      .margin({ right: 6 })
-      .onClick(async () => await this.updateViewConfig(value))
-  }
+
+  // Replaced by ConfigButton component below
 
   @Builder
   NewDateMarkerGroup() {
     Column() {
+        Text(this.settingsRenderKey.toString()).fontSize(0).width(0).height(0).visibility(Visibility.None)
       Text("日期标记")
         .fontSize(18)
         .fontColor(TEXT_PRIMARY)
@@ -2481,14 +2709,26 @@ struct Index {
   @Builder
   NewSyncSettingsGroup() {
     Column() {
+        Text(this.settingsRenderKey.toString()).fontSize(0).width(0).height(0).visibility(Visibility.None)
       this.NewAutoSyncIntervalRow()
-      this.NewSettingRow("后台自动同步", "新增、修改、删除后立即在后台同步", true)
-      this.NewSettingRow("本地加密缓存", "RDB Store S3 已启用", false)
+      this.NewSettingStatusRow("后台自动同步", "新增、修改、删除后立即在后台同步", "已启用")
+      this.NewSettingStatusRow("本地加密缓存", "RDB Store S3 已启用", "已启用")
     }
-    .margin({ top: 12 })
+    .margin({ top: 6 })
     .backgroundColor(SURFACE_COLOR)
-    .borderRadius(CARD_RADIUS)
-    .border({ width: 0.5, color: BORDER_COLOR })
+    .borderRadius(28)
+    .border({ width: 1, color: BORDER_COLOR })
+  }
+
+  @Builder
+  NewSectionCaption(title: string) {
+    Text(title)
+      .fontSize(14)
+      .fontColor(TEXT_SECONDARY)
+      .fontWeight(FontWeight.Medium)
+      .width("100%")
+      .textAlign(TextAlign.Start)
+      .margin({ top: 18, bottom: 10, left: 4 })
   }
 
   @Builder
@@ -2522,9 +2762,72 @@ struct Index {
           this.resetAutoSyncTimer();
         })
     }
-    .height(72)
-    .padding(12)
-    .border({ width: { bottom: 0.5 }, color: "#EDF2F7" })
+    .height(82)
+    .padding({ left: 16, right: 16, top: 14, bottom: 14 })
+    .border({ width: { bottom: 1 }, color: "#EFF1F4" })
+  }
+
+  @Builder
+  NewSettingSelectRow(title: string, body: string, selectedValue: string, options: SelectOption[], selectedIndex: number, action: string) {
+    Row() {
+      Column() {
+        Text(title)
+          .fontSize(16)
+          .fontColor(TEXT_PRIMARY)
+          .fontWeight(FontWeight.Bold)
+        Text(body)
+          .fontSize(13)
+          .fontColor(TEXT_SECONDARY)
+          .margin({ top: 4 })
+      }
+      .alignItems(HorizontalAlign.Start)
+      .layoutWeight(1)
+      Select(options)
+        .selected(selectedIndex)
+        .value(selectedValue)
+        .font({ size: 13, weight: FontWeight.Bold })
+        .fontColor(PRIMARY_STRONG_COLOR)
+        .selectedOptionFont({ size: 13, weight: FontWeight.Bold })
+        .optionFont({ size: 13 })
+        .backgroundColor(PRIMARY_SOFT_COLOR)
+        .borderRadius(CONTROL_RADIUS)
+        .width(176)
+        .height(38)
+        .onSelect((index: number) => {
+          this.updateSettingSelect(action, index);
+        })
+    }
+    .height(82)
+    .padding({ left: 16, right: 16, top: 14, bottom: 14 })
+    .border({ width: { bottom: 1 }, color: "#EFF1F4" })
+  }
+
+  @Builder
+  NewSettingStatusRow(title: string, body: string, status: string) {
+    Row() {
+      Column() {
+        Text(title)
+          .fontSize(16)
+          .fontColor(TEXT_PRIMARY)
+          .fontWeight(FontWeight.Bold)
+        Text(body)
+          .fontSize(13)
+          .fontColor(TEXT_SECONDARY)
+          .margin({ top: 4 })
+      }
+      .alignItems(HorizontalAlign.Start)
+      .layoutWeight(1)
+      Text(status)
+        .fontSize(13)
+        .fontColor(TEXT_SECONDARY)
+        .fontWeight(FontWeight.Bold)
+        .padding({ left: 10, right: 10, top: 6, bottom: 6 })
+        .backgroundColor(SOFT_SURFACE_COLOR)
+        .borderRadius(CONTROL_RADIUS)
+    }
+    .height(82)
+    .padding({ left: 16, right: 16, top: 14, bottom: 14 })
+    .border({ width: { bottom: 1 }, color: "#EFF1F4" })
   }
 
   @Builder
@@ -2550,6 +2853,36 @@ struct Index {
           .fontColor(TEXT_SECONDARY)
           .fontWeight(FontWeight.Bold)
       }
+    }
+    .height(66)
+    .padding(12)
+    .border({ width: { bottom: 0.5 }, color: "#EDF2F7" })
+  }
+
+  @Builder
+  NewSettingActionRow(title: string, body: string, action: string) {
+    Row() {
+      Column() {
+        Text(title)
+          .fontSize(16)
+          .fontColor(TEXT_PRIMARY)
+          .fontWeight(FontWeight.Bold)
+        Text(body)
+          .fontSize(13)
+          .fontColor(TEXT_SECONDARY)
+          .margin({ top: 4 })
+      }
+      .alignItems(HorizontalAlign.Start)
+      .layoutWeight(1)
+      Button("切换")
+        .height(38)
+        .width(76)
+        .fontSize(13)
+        .fontColor(PRIMARY_STRONG_COLOR)
+        .fontWeight(FontWeight.Bold)
+        .backgroundColor(PRIMARY_SOFT_COLOR)
+        .borderRadius(CONTROL_RADIUS)
+        .onClick(async () => await this.updateViewConfig(action))
     }
     .height(66)
     .padding(12)
@@ -2615,7 +2948,7 @@ struct Index {
 
 	  private editingConflictEvents(): CalendarEvent[] {
 	    const event: CalendarEvent | null = this.editingEvent();
-	    if (event === null || (event.conflictStatus ?? "none") === "none") {
+	    if (event == null || (event.conflictStatus ?? "none") === "none") {
 	      return [];
 	    }
 	    return [event];
@@ -2749,11 +3082,11 @@ struct Index {
         .margin({ top: 14 })
         .onClick(async () => await this.saveEventForm())
     }
-    .padding(14)
+    .padding(18)
     .margin({ top: 12 })
     .backgroundColor(SURFACE_COLOR)
-    .borderRadius(CARD_RADIUS)
-    .border({ width: 0.5, color: BORDER_COLOR })
+    .borderRadius(28)
+    .border({ width: 1, color: BORDER_COLOR })
   }
 
   @Builder
@@ -2763,13 +3096,13 @@ struct Index {
         .fontSize(12)
         .fontColor(TEXT_SECONDARY)
         .fontWeight(FontWeight.Bold)
-      Button(value)
-        .height(48)
+      Button(target === "start" ? this.startInput : this.endInput)
+        .height(54)
         .width("100%")
-        .backgroundColor(SOFT_SURFACE_COLOR)
+        .backgroundColor("#F7F8FA")
         .fontColor(TEXT_PRIMARY)
         .fontSize(12)
-        .borderRadius(CONTROL_RADIUS)
+        .borderRadius(18)
         .margin({ top: 6 })
         .onClick(() => this.pickDateTime(target))
     }
@@ -2783,14 +3116,14 @@ struct Index {
       Blank()
         .width(12)
         .height(34)
-        .backgroundColor(this.defaultSourceColor())
+        .backgroundColor(this.formSourceColor())
         .borderRadius(6)
       Column() {
-        Text(this.defaultSourceTitle())
+        Text(this.formSourceTitle())
           .fontSize(16)
           .fontColor(TEXT_PRIMARY)
           .fontWeight(FontWeight.Bold)
-        Text(this.defaultSourceSubtitle())
+        Text(this.formSourceSubtitle())
           .fontSize(12)
           .fontColor(TEXT_SECONDARY)
           .maxLines(1)
@@ -2805,13 +3138,17 @@ struct Index {
         .fontColor(TEXT_SECONDARY)
         .fontWeight(FontWeight.Bold)
     }
-    .height(56)
-    .padding({ left: 12, right: 12 })
+    .height(62)
+    .padding({ left: 14, right: 14 })
     .margin({ top: 8 })
-    .backgroundColor(SOFT_SURFACE_COLOR)
-    .borderRadius(CONTROL_RADIUS)
+    .backgroundColor("#F7F8FA")
+    .borderRadius(20)
     .onClick(() => {
-      this.appPage = "calendars";
+      if (this.editingEventId.length > 0) {
+        this.appPage = "calendars";
+      } else {
+        this.cycleFormSource();
+      }
     })
   }
 
@@ -2853,84 +3190,6 @@ struct Index {
 	        .onChange((value: string) => {
 	          this.attendeesInput = value;
 	        })
-	      TextInput({ text: this.attendeeNameInput, placeholder: "参会人姓名" })
-	        .height(44)
-	        .fontSize(13)
-	        .fontColor(TEXT_PRIMARY)
-	        .backgroundColor(SOFT_SURFACE_COLOR)
-	        .borderRadius(CONTROL_RADIUS)
-	        .margin({ top: 8 })
-	        .onChange((value: string) => {
-	          this.attendeeNameInput = value;
-	        })
-	      TextInput({ text: this.attendeeEmailInput, placeholder: "参会人邮箱" })
-	        .height(44)
-	        .fontSize(13)
-	        .fontColor(TEXT_PRIMARY)
-	        .backgroundColor(SOFT_SURFACE_COLOR)
-	        .borderRadius(CONTROL_RADIUS)
-	        .margin({ top: 8 })
-	        .onChange((value: string) => {
-	          this.attendeeEmailInput = value;
-	        })
-	      Row() {
-	        this.AttendeeRoleButton("必需", "REQ-PARTICIPANT")
-	        this.AttendeeRoleButton("可选", "OPT-PARTICIPANT")
-	        this.AttendeeStatusButton("待回复", "NEEDS-ACTION")
-	        this.AttendeeStatusButton("已接受", "ACCEPTED")
-	      }
-	      .height(36)
-	      .margin({ top: 8 })
-	      Row() {
-	        this.SwitchMark(this.attendeeRsvpInput)
-	        Text(this.attendeeRsvpInput ? "需要回复" : "不要求回复")
-	          .fontSize(12)
-	          .fontColor(TEXT_SECONDARY)
-	          .margin({ left: 8 })
-	        Blank().layoutWeight(1)
-	        Button("加入参会人")
-	          .height(34)
-	          .width(96)
-	          .fontSize(12)
-	          .fontColor(PRIMARY_STRONG_COLOR)
-	          .backgroundColor("#00000000")
-	          .borderRadius(CONTROL_RADIUS)
-	          .onClick(() => this.addStructuredAttendee())
-	      }
-	      .margin({ top: 8 })
-	      .onClick(() => {
-	        this.attendeeRsvpInput = !this.attendeeRsvpInput;
-	      })
-	      if (this.attendeeJsonInput.length > 0) {
-	        Text(this.attendeeSummary())
-	          .fontSize(11)
-	          .fontColor(TEXT_SECONDARY)
-	          .maxLines(2)
-	          .textOverflow({ overflow: TextOverflow.Ellipsis })
-	          .margin({ top: 6 })
-	      }
-
-      this.FieldLabel("组织者")
-      TextInput({ text: this.organizerNameInput, placeholder: "组织者姓名" })
-        .height(48)
-        .fontSize(14)
-        .fontColor(TEXT_PRIMARY)
-        .backgroundColor(SOFT_SURFACE_COLOR)
-        .borderRadius(CONTROL_RADIUS)
-        .margin({ top: 8 })
-        .onChange((value: string) => {
-          this.organizerNameInput = value;
-        })
-      TextInput({ text: this.organizerEmailInput, placeholder: "organizer@example.com" })
-        .height(48)
-        .fontSize(14)
-        .fontColor(TEXT_PRIMARY)
-        .backgroundColor(SOFT_SURFACE_COLOR)
-        .borderRadius(CONTROL_RADIUS)
-        .margin({ top: 8 })
-        .onChange((value: string) => {
-          this.organizerEmailInput = value;
-        })
 
 	      this.FieldLabel("重复")
 	      Row() {
@@ -2950,26 +3209,6 @@ struct Index {
 	        .height(38)
 	        .margin({ top: 8 })
 	      }
-      TextInput({ text: this.exdateInput, placeholder: "排除日期 EXDATE，例如 20260601T090000Z" })
-        .height(48)
-        .fontSize(13)
-        .fontColor(TEXT_PRIMARY)
-        .backgroundColor(SOFT_SURFACE_COLOR)
-        .borderRadius(CONTROL_RADIUS)
-        .margin({ top: 8 })
-        .onChange((value: string) => {
-          this.exdateInput = value;
-        })
-      TextInput({ text: this.rdateInput, placeholder: "额外日期 RDATE，例如 20260608T090000Z" })
-        .height(48)
-        .fontSize(13)
-        .fontColor(TEXT_PRIMARY)
-        .backgroundColor(SOFT_SURFACE_COLOR)
-        .borderRadius(CONTROL_RADIUS)
-        .margin({ top: 8 })
-        .onChange((value: string) => {
-          this.rdateInput = value;
-        })
 
       this.FieldLabel("状态")
       Row() {
@@ -2998,64 +3237,6 @@ struct Index {
       .height(38)
       .margin({ top: 8 })
 
-      this.FieldLabel("提醒列表")
-      TextInput({ text: this.reminderOffsetsInput, placeholder: "多个提醒分钟，用逗号分隔，例如 10,30,1440" })
-        .height(48)
-        .fontSize(13)
-        .fontColor(TEXT_PRIMARY)
-        .backgroundColor(SOFT_SURFACE_COLOR)
-        .borderRadius(CONTROL_RADIUS)
-        .margin({ top: 8 })
-        .onChange((value: string) => {
-          this.reminderOffsetsInput = value;
-        })
-
-      if (this.eventKindInput === "task") {
-        this.FieldLabel("任务")
-        TextInput({ text: this.dueInput, placeholder: "截止时间，例如 2026-06-01 18:00" })
-          .height(48)
-          .fontSize(13)
-          .fontColor(TEXT_PRIMARY)
-          .backgroundColor(SOFT_SURFACE_COLOR)
-          .borderRadius(CONTROL_RADIUS)
-          .margin({ top: 8 })
-          .onChange((value: string) => {
-            this.dueInput = value;
-          })
-        TextInput({ text: this.completedInput, placeholder: "完成时间，空为未完成" })
-          .height(48)
-          .fontSize(13)
-          .fontColor(TEXT_PRIMARY)
-          .backgroundColor(SOFT_SURFACE_COLOR)
-          .borderRadius(CONTROL_RADIUS)
-          .margin({ top: 8 })
-          .onChange((value: string) => {
-            this.completedInput = value;
-          })
-        TextInput({ text: this.priorityInput, placeholder: "优先级 1-9，0 为默认" })
-          .height(48)
-          .fontSize(13)
-          .fontColor(TEXT_PRIMARY)
-          .backgroundColor(SOFT_SURFACE_COLOR)
-          .borderRadius(CONTROL_RADIUS)
-          .margin({ top: 8 })
-          .onChange((value: string) => {
-            this.priorityInput = value;
-            this.clearFormError();
-          })
-        TextInput({ text: this.percentCompleteInput, placeholder: "完成进度 0-100" })
-          .height(48)
-          .fontSize(13)
-          .fontColor(TEXT_PRIMARY)
-          .backgroundColor(SOFT_SURFACE_COLOR)
-          .borderRadius(CONTROL_RADIUS)
-          .margin({ top: 8 })
-          .onChange((value: string) => {
-            this.percentCompleteInput = value;
-            this.clearFormError();
-          })
-      }
-
       this.FieldLabel("颜色")
       this.ColorPaletteGrid()
 
@@ -3071,11 +3252,11 @@ struct Index {
           this.notesInput = value;
         })
     }
-    .padding(14)
+    .padding(18)
     .margin({ top: 12 })
     .backgroundColor(SURFACE_COLOR)
-    .borderRadius(CARD_RADIUS)
-    .border({ width: 0.5, color: BORDER_COLOR })
+    .borderRadius(28)
+    .border({ width: 1, color: BORDER_COLOR })
   }
 
   @Builder
@@ -3369,11 +3550,13 @@ struct Index {
         .fontSize(11)
         .fontColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : TEXT_SECONDARY)
         .fontWeight(FontWeight.Medium)
+        .onClick(() => this.selectCalendarDay(day, "day"))
       Text(`${new Date(day).getDate()}`)
         .fontSize(17)
         .fontColor(sameDay(day, this.selectedDay) ? "#FFFFFF" : TEXT_PRIMARY)
         .fontWeight(FontWeight.Bold)
         .margin({ top: 4 })
+        .onClick(() => this.selectCalendarDay(day, "day"))
     }
     .height(62)
     .justifyContent(FlexAlign.Center)
@@ -3382,14 +3565,7 @@ struct Index {
     .backgroundColor(sameDay(day, this.selectedDay) ? PRIMARY_COLOR : "#00000000")
     .borderRadius(18)
     .margin({ right: sameDay(day, this.weekDaysForSelectedDay()[6]) ? 0 : 7 })
-    .onClick(() => {
-      this.selectedDay = day;
-      this.visibleMonth = this.monthStart(day);
-      this.scheduleView = "day";
-      this.startInput = this.defaultStartText();
-      this.endInput = this.defaultEndText();
-      this.cancelEditing();
-    })
+    .onClick(() => this.selectCalendarDay(day, "day"))
   }
 
   @Builder
@@ -3635,7 +3811,7 @@ struct Index {
     .width(52)
     .height(30)
     .alignItems(VerticalAlign.Center)
-    .backgroundColor(enabled ? PRIMARY_COLOR : BORDER_COLOR)
+    .backgroundColor(enabled ? PRIMARY_COLOR : "#E4E6EA")
     .borderRadius(15)
   }
 
@@ -3831,6 +4007,7 @@ struct Index {
           GridItem() {
             this.DayCell(day)
           }
+          .onClick(() => this.selectCalendarDay(day, "day"))
         }, (day: number) => `${day}`)
       }
       .columnsTemplate("1fr 1fr 1fr 1fr 1fr 1fr 1fr")
@@ -4048,19 +4225,20 @@ struct Index {
   @Builder
   FieldLabel(label: string) {
     Text(label)
-      .fontSize(12)
+      .fontSize(13)
       .fontColor(TEXT_SECONDARY)
       .fontWeight(FontWeight.Medium)
       .width("100%")
       .textAlign(TextAlign.Start)
-      .margin({ top: 12 })
+      .margin({ top: 16 })
   }
 
   @Builder
   ProviderButton(label: string, value: string) {
     Button(label)
       .height(38)
-      .width("100%")
+      .width(0)
+      .layoutWeight(1)
       .backgroundColor(value === "custom" ? SOFT_SURFACE_COLOR : PRIMARY_SOFT_COLOR)
       .fontColor(value === "custom" ? TEXT_PRIMARY : PRIMARY_COLOR)
       .borderRadius(CONTROL_RADIUS)
@@ -4075,33 +4253,25 @@ struct Index {
         this.EventKindButton("日历", "calendar")
         this.EventKindButton("重要日", "important")
         this.EventKindButton("提醒", "reminder")
-        this.EventKindButton("任务", "task")
-      }
-      .height(42)
-      Row() {
-        this.EventKindButton("专注", "focus")
         this.EventKindButton("外出", "outOfOffice")
-        this.EventKindButton("办公地", "workingLocation")
-        this.EventKindButton("预约", "appointment")
       }
-      .height(42)
-      .margin({ top: 6 })
+      .height(52)
     }
-    .padding(3)
-    .backgroundColor(SOFT_SURFACE_COLOR)
-    .borderRadius(PILL_RADIUS)
+    .padding(4)
+    .backgroundColor("#ECEEF2")
+    .borderRadius(26)
     .margin({ top: 12 })
   }
 
   @Builder
   EventKindButton(label: string, value: CalendarEventKind) {
     Button(label)
-      .height(36)
+      .height(44)
       .layoutWeight(1)
       .backgroundColor(this.eventKindInput === value ? SURFACE_COLOR : SOFT_SURFACE_COLOR)
       .fontColor(this.eventKindInput === value ? TEXT_PRIMARY : TEXT_SECONDARY)
-      .borderRadius(PILL_RADIUS)
-      .fontSize(13)
+      .borderRadius(22)
+      .fontSize(14)
       .onClick(() => this.selectEventKind(value))
   }
 
@@ -4263,11 +4433,11 @@ struct Index {
   @Builder
   ReminderOption(label: string, minutes: string) {
     Button(label)
-      .height(34)
+      .height(38)
       .layoutWeight(1)
       .backgroundColor(this.reminderInput === minutes ? SUCCESS_SOFT_COLOR : SOFT_SURFACE_COLOR)
       .fontColor(this.reminderInput === minutes ? SUCCESS_COLOR : TEXT_PRIMARY)
-      .borderRadius(CONTROL_RADIUS)
+      .borderRadius(16)
       .fontSize(12)
       .margin({ right: label === "30 分钟" || label === "重要" ? 0 : 8 })
       .onClick(() => {
@@ -4284,7 +4454,7 @@ struct Index {
         .fontColor(TEXT_SECONDARY)
         .width("100%")
         .textAlign(TextAlign.Start)
-      Button(value)
+      Button(target === "start" ? this.startInput : this.endInput)
         .height(52)
         .width("100%")
         .fontSize(14)
@@ -4301,37 +4471,16 @@ struct Index {
 
   @Builder
   DayCell(day: number) {
-    Column() {
-      Text(`${new Date(day).getDate()}`)
-        .fontSize(13)
-        .fontColor(this.dayTextColor(day))
-        .fontWeight(FontWeight.Bold)
-      if (this.eventCountForDay(day) > 0 && !sameDay(day, this.selectedDay)) {
-        Blank()
-          .width(4)
-          .height(4)
-          .backgroundColor(this.eventCategoryColor(this.eventsForDay(day)[0]))
-          .borderRadius(2)
-          .margin({ top: 3 })
-      } else {
-        Blank()
-          .height(7)
-      }
-    }
+    Button(`${new Date(day).getDate()}`)
     .width("100%")
     .height(42)
-    .justifyContent(FlexAlign.Center)
-    .alignItems(HorizontalAlign.Center)
     .backgroundColor(this.dayCellBackground(day))
     .borderRadius(12)
     .border({ width: this.dayCellBorderWidth(day), color: this.dayCellBorderColor(day) })
-    .onClick(() => {
-      this.selectedDay = day;
-      this.startInput = this.defaultStartText();
-      this.endInput = this.defaultEndText();
-      this.scheduleView = "day";
-      this.cancelEditing();
-    })
+    .fontColor(this.dayTextColor(day))
+    .fontSize(13)
+    .fontWeight(FontWeight.Bold)
+    .onClick(() => this.selectCalendarDay(day, "day"))
   }
 
   @Builder
@@ -5452,6 +5601,9 @@ struct Index {
 
   private async loadSources(): Promise<void> {
     this.sources = await this.requireService().listSources();
+    if (this.selectedSourceIdInput.length === 0) {
+      this.selectedSourceIdInput = this.defaultWritableSourceId();
+    }
     if (this.resourceSourceIdInput.length === 0) {
       this.resourceSourceIdInput = this.defaultWritableSourceId();
     }
@@ -5554,7 +5706,7 @@ struct Index {
   }
 
   private sourceResourceMeta(source: CalendarSource): string {
-    const count: number = this.resourcesForSource(source.id ?? "").length;
+    const count: number = this.resourcesForSource(source!.id ?? "").length;
     return count > 0 ? `资源：${count} 个会议室/设备` : "资源：未配置";
   }
 
@@ -5742,7 +5894,7 @@ struct Index {
           days: Array.isArray(daysRaw) ? daysRaw.map((day: number) => Number(day)) : undefined,
           start: `${holder["start"] ?? holder["startTime"] ?? ""}`,
           end: `${holder["end"] ?? holder["endTime"] ?? ""}`
-        };
+        } as ResourceAvailabilityWindow;
       }).filter((item: ResourceAvailabilityWindow) => item.start.length > 0 && item.end.length > 0);
     } catch {
       return [];
@@ -5754,8 +5906,8 @@ struct Index {
     if (match === null) {
       return -1;
     }
-    const hour: number = Number(match[1]);
-    const minute: number = Number(match[2]);
+    const hour: number = Number(match![1]);
+    const minute: number = Number(match![2]);
     if (Number.isNaN(hour) || Number.isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
       return -1;
     }
@@ -5764,7 +5916,15 @@ struct Index {
 
   private async loadViewConfig(): Promise<void> {
     this.viewConfig = await this.requireService().loadViewConfig();
-    if (this.scheduleView === "day" && this.viewConfig.defaultView.length > 0) {
+    if (this.viewConfig.defaultView === "day") {
+      this.viewConfig = withViewConfig(this.viewConfig, "defaultView", "month");
+      await this.requireService().saveViewConfig(this.viewConfig);
+    }
+    if (this.viewConfig.minHour === 8 && this.viewConfig.maxHour === 21) {
+      this.viewConfig = withMinMaxHour(this.viewConfig, TIME_GRID_START_HOUR, TIME_GRID_END_HOUR);
+      await this.requireService().saveViewConfig(this.viewConfig);
+    }
+    if (this.scheduleView === "month" && this.viewConfig.defaultView.length > 0) {
       this.scheduleView = this.viewConfig.defaultView;
     }
   }
@@ -5774,94 +5934,247 @@ struct Index {
     this.dateMarkers = await this.requireService().listDateMarkers(baseStart - 31 * DAY_MS, addMonths(baseStart, 13));
   }
 
-	  private async updateViewConfig(value: string): Promise<void> {
-	    if (value.startsWith("auth:")) {
-	      this.authTypeInput = this.authTypeValue(value.split(":")[1]);
-	      return;
-	    }
+	private async updateViewConfig(value: string): Promise<void> {
+    if (value.startsWith("auth:")) {
+      this.authTypeInput = this.authTypeValue(value.split(":")[1]);
+      return;
+    }
 
+    try {
 	    let next: CalendarViewConfig = this.viewConfig;
-    if (value === "day" || value === "week" || value === "month") {
-      next = { ...this.viewConfig, defaultView: value
-        };
+    if (value === "setting:defaultView") {
+      next = withViewConfig(this.viewConfig, "defaultView", this.nextDefaultView(this.viewConfig.defaultView));
+    } else if (value === "setting:weekStart") {
+      const nextStart: number = this.viewConfig.weekStartsOn === 0 ? 1 : 0;
+      next = withViewConfig(this.viewConfig, "weekStartsOn", nextStart);
+      next = withViewConfig(next, "weekEndsOn", this.defaultWeekEndsOn(nextStart));
+    } else if (value === "setting:defaultReminder") {
+      next = withViewConfig(this.viewConfig, "defaultReminderMinutes",
+        this.nextDefaultReminder(this.viewConfig.defaultReminderMinutes ?? 15));
+    } else if (value === "setting:timeZone") {
+      const nextZone: string = this.nextTimeZone(this.currentTimeZoneValue());
+      next = withViewConfig(this.viewConfig, "timeZone", nextZone);
+      if (this.editingEventId.length === 0) {
+        this.timeZoneInput = nextZone;
+      }
+    } else if (value === "day" || value === "week" || value === "month") {
+      next = withViewConfig(this.viewConfig, "defaultView", value);
     } else if (value.startsWith("hours:")) {
       const parts: string[] = value.split(":");
-      next = { ...this.viewConfig, minHour: Number(parts[1]),
-        maxHour: Number(parts[2])
-        };
+      next = withMinMaxHour(this.viewConfig, Number(parts[1]),
+        Number(parts[2])
+        );
     } else if (value.startsWith("dots:")) {
-      next = { ...this.viewConfig, maxVisibleEventsPerDay: Number(value.split(":")[1])
-        };
+      next = withViewConfig(this.viewConfig, "maxVisibleEventsPerDay", Number(value.split(":")[1]));
 	    } else if (value === "swipe") {
-	      next = { ...this.viewConfig, swipeEnabled: !this.viewConfig.swipeEnabled
-	        };
+	      next = withViewConfig(this.viewConfig, "swipeEnabled", !this.viewConfig.swipeEnabled);
 	    } else if (value === "weekEnd") {
-	      next = { ...this.viewConfig, weekEndsOn: (this.viewConfig.weekEndsOn ?? 0) === 0 ? 6 : 0
-	        };
+	      next = withViewConfig(this.viewConfig, "weekEndsOn", (this.viewConfig.weekEndsOn ?? 0) === 0 ? 6 : 0);
 	    } else if (value === "sixWeeks") {
-	      next = { ...this.viewConfig, showSixWeeks: this.viewConfig.showSixWeeks === false
-	        };
+	      next = withViewConfig(this.viewConfig, "showSixWeeks", this.viewConfig.showSixWeeks === false);
 	    } else if (value === "hourFormat") {
-	      next = { ...this.viewConfig, hourFormat: (this.viewConfig.hourFormat ?? "24h") === "24h" ? "12h" : "24h"
-	        };
+	      next = withViewConfig(this.viewConfig, "hourFormat", (this.viewConfig.hourFormat ?? "24h") === "24h" ? "12h" : "24h");
 	    } else if (value.startsWith("locale:")) {
-	      next = { ...this.viewConfig, locale: value.split(":")[1]
-	        };
+	      next = withViewConfig(this.viewConfig, "locale", value.split(":")[1]);
 	    } else if (value === "views:all") {
-	      next = { ...this.viewConfig, enabledViewsJson: ""
-	        };
+	      next = withViewConfig(this.viewConfig, "enabledViewsJson", "");
 	    } else if (value.startsWith("kind:")) {
-	      next = { ...this.viewConfig, eventKindFilter: value.split(":")[1]
-	        };
+	      next = withViewConfig(this.viewConfig, "eventKindFilter", value.split(":")[1]);
 	    } else if (value.startsWith("defaultReminder:")) {
-	      next = { ...this.viewConfig, defaultReminderMinutes: Number(value.split(":")[1])
-	        };
+	      next = withViewConfig(this.viewConfig, "defaultReminderMinutes", Number(value.split(":")[1]));
 	    } else if (value.startsWith("theme:")) {
-	      next = { ...this.viewConfig, themeMode: value.split(":")[1]
-	        };
+	      next = withViewConfig(this.viewConfig, "themeMode", value.split(":")[1]);
 	    } else if (value.startsWith("sound:")) {
-	      next = { ...this.viewConfig, reminderSound: value.split(":")[1]
-	        };
+	      next = withViewConfig(this.viewConfig, "reminderSound", value.split(":")[1]);
 	    } else if (value === "vibrate") {
-	      next = { ...this.viewConfig, reminderVibrate: this.viewConfig.reminderVibrate === false
-	        };
+	      next = withViewConfig(this.viewConfig, "reminderVibrate", this.viewConfig.reminderVibrate === false);
 	    } else if (value === "hideCancelled") {
-	      next = { ...this.viewConfig, hideCancelledEvents: this.viewConfig.hideCancelledEvents !== true
-	        };
+	      next = withViewConfig(this.viewConfig, "hideCancelledEvents", this.viewConfig.hideCancelledEvents !== true);
 	    } else if (value === "incompleteTasks") {
-	      next = { ...this.viewConfig, showIncompleteTasksOnly: this.viewConfig.showIncompleteTasksOnly !== true
-	        };
+	      next = withViewConfig(this.viewConfig, "showIncompleteTasksOnly", this.viewConfig.showIncompleteTasksOnly !== true);
 	    } else if (value === "clearSourceFilter") {
-	      next = { ...this.viewConfig, sourceFilterJson: ""
-	        };
+	      next = withViewConfig(this.viewConfig, "sourceFilterJson", "");
 	    } else if (value === "adjacentMonths") {
-	      next = { ...this.viewConfig, showAdjacentMonths: this.viewConfig.showAdjacentMonths === false
-	        };
+	      next = withViewConfig(this.viewConfig, "showAdjacentMonths", this.viewConfig.showAdjacentMonths === false);
 	    } else if (value === "nowIndicator") {
-	      next = { ...this.viewConfig, nowIndicatorVisible: this.viewConfig.nowIndicatorVisible === false
-	        };
+	      next = withViewConfig(this.viewConfig, "nowIndicatorVisible", this.viewConfig.nowIndicatorVisible === false);
 	    } else if (value === "scrollOffset") {
-	      next = { ...this.viewConfig, scrollOffsetMinutes: (this.viewConfig.scrollOffsetMinutes ?? 480) === 480 ? 360 : 480
-	        };
+	      next = withViewConfig(this.viewConfig, "scrollOffsetMinutes", (this.viewConfig.scrollOffsetMinutes ?? 480) === 480 ? 360 : 480);
 	    } else if (value === "monthMoreLabel") {
-	      next = { ...this.viewConfig, monthMoreLabel: (this.viewConfig.monthMoreLabel ?? "更多") === "更多" ? "+N" : "更多"
-	        };
+	      next = withViewConfig(this.viewConfig, "monthMoreLabel", (this.viewConfig.monthMoreLabel ?? "更多") === "更多" ? "+N" : "更多");
 	    } else if (value === "eventOrder") {
-	      next = { ...this.viewConfig, eventOrder: (this.viewConfig.eventOrder ?? "start,title") === "start,title" ? "title,start" : "start,title"
-	        };
+	      next = withViewConfig(this.viewConfig, "eventOrder", (this.viewConfig.eventOrder ?? "start,title") === "start,title" ? "title,start" : "start,title");
 	    } else if (value === "agendaPast") {
-	      next = { ...this.viewConfig, agendaShowPastDays: this.viewConfig.agendaShowPastDays !== true
-	        };
+	      next = withViewConfig(this.viewConfig, "agendaShowPastDays", this.viewConfig.agendaShowPastDays !== true);
 	    } else if (value === "agendaGroup") {
-	      next = { ...this.viewConfig, agendaGroupMode: (this.viewConfig.agendaGroupMode ?? "day") === "day" ? "source" : "day"
-	        };
+	      next = withViewConfig(this.viewConfig, "agendaGroupMode", (this.viewConfig.agendaGroupMode ?? "day") === "day" ? "source" : "day");
 	    } else if (value === "agendaEmpty") {
-	      next = { ...this.viewConfig, agendaEmptyText: (this.viewConfig.agendaEmptyText ?? "当天没有日程") === "当天没有日程" ? "没有符合条件的日程" : "当天没有日程"
-	        };
+	      next = withViewConfig(this.viewConfig, "agendaEmptyText", (this.viewConfig.agendaEmptyText ?? "当天没有日程") === "当天没有日程" ? "没有符合条件的日程" : "当天没有日程");
 	    }
 
-    this.viewConfig = await this.requireService().saveViewConfig(next);
+    this.commitViewConfig(next);
+    } catch (e) {
+      console.error("updateViewConfig error: " + JSON.stringify(e));
+      this.syncStatus = "保存失败: " + (typeof e === 'object' ? JSON.stringify(e) : String(e));
+    }
+  }
+
+  private updateSettingSelect(action: string, index: number): void {
+    try {
+      let next: CalendarViewConfig = this.viewConfig;
+      if (action === "defaultView") {
+        const views: string[] = ["month", "week"];
+        next = withViewConfig(this.viewConfig, "defaultView", views[Math.max(0, Math.min(1, index))]);
+      } else if (action === "weekStart") {
+        const weekStartsOn: number = index === 1 ? 0 : 1;
+        next = withViewConfig(this.viewConfig, "weekStartsOn", weekStartsOn);
+        next = withViewConfig(next, "weekEndsOn", this.defaultWeekEndsOn(weekStartsOn));
+      } else if (action === "defaultReminder") {
+        const reminders: number[] = [15, 30, 0];
+        next = withViewConfig(this.viewConfig, "defaultReminderMinutes", reminders[Math.max(0, Math.min(2, index))]);
+      } else if (action === "timeZone") {
+        const zones: string[] = this.timeZoneValues();
+        const nextZone: string = zones[Math.max(0, Math.min(zones.length - 1, index))];
+        next = withViewConfig(this.viewConfig, "timeZone", nextZone);
+        if (this.editingEventId.length === 0) {
+          this.timeZoneInput = nextZone;
+        }
+      }
+
+      this.commitViewConfig(next);
+    } catch (e) {
+      console.error("updateSettingSelect error: " + JSON.stringify(e));
+      this.syncStatus = "保存失败: " + (typeof e === 'object' ? JSON.stringify(e) : String(e));
+    }
+  }
+
+  private commitViewConfig(next: CalendarViewConfig): void {
+    this.viewConfig = next;
+    this.appPage = "settings";
+    this.settingsRenderKey++;
     this.syncStatus = "视图配置已保存";
+    this.requireService().saveViewConfig(next).then((saved: CalendarViewConfig) => {
+      this.viewConfig = saved;
+      this.appPage = "settings";
+      this.settingsRenderKey++;
+    }).catch((e: Error) => {
+      console.error("saveViewConfig error: " + JSON.stringify(e));
+      this.syncStatus = "保存失败: " + JSON.stringify(e);
+      this.appPage = "settings";
+      this.settingsRenderKey++;
+    });
+  }
+
+  private defaultViewLabel(): string {
+    if (this.viewConfig.defaultView === "week") {
+      return "周";
+    }
+
+    return "月";
+  }
+
+  private defaultViewSelectOptions(): SelectOption[] {
+    return [
+      { value: "月" },
+      { value: "周" }
+    ];
+  }
+
+  private defaultViewSelectIndex(): number {
+    if (this.viewConfig.defaultView === "week") {
+      return 1;
+    }
+
+    return 0;
+  }
+
+  private weekStartLabel(): string {
+    return this.viewConfig.weekStartsOn === 0 ? "周日" : "周一";
+  }
+
+  private weekStartSelectOptions(): SelectOption[] {
+    return [
+      { value: "周一" },
+      { value: "周日" }
+    ];
+  }
+
+  private weekStartSelectIndex(): number {
+    return this.viewConfig.weekStartsOn === 0 ? 1 : 0;
+  }
+
+  private defaultReminderLabel(): string {
+    const minutes: number = this.viewConfig.defaultReminderMinutes ?? 15;
+    return minutes <= 0 ? "不提醒" : `提前 ${minutes} 分钟`;
+  }
+
+  private defaultReminderSelectOptions(): SelectOption[] {
+    return [
+      { value: "提前 15 分钟" },
+      { value: "提前 30 分钟" },
+      { value: "不提醒" }
+    ];
+  }
+
+  private defaultReminderSelectIndex(): number {
+    const minutes: number = this.viewConfig.defaultReminderMinutes ?? 15;
+    if (minutes === 30) {
+      return 1;
+    }
+    if (minutes <= 0) {
+      return 2;
+    }
+
+    return 0;
+  }
+
+  private currentTimeZoneValue(): string {
+    const timeZone: string = (this.viewConfig.timeZone ?? "Asia/Shanghai").trim();
+    return timeZone.length > 0 ? timeZone : "Asia/Shanghai";
+  }
+
+  private currentTimeZoneLabel(): string {
+    return this.currentTimeZoneValue();
+  }
+
+  private timeZoneSelectOptions(): SelectOption[] {
+    return this.timeZoneValues().map((value: string): SelectOption => {
+      return { value };
+    });
+  }
+
+  private timeZoneSelectIndex(): number {
+    const index: number = this.timeZoneValues().indexOf(this.currentTimeZoneValue());
+    return index >= 0 ? index : 0;
+  }
+
+  private nextDefaultView(value: string): string {
+    return value === "month" ? "week" : "month";
+  }
+
+  private nextDefaultReminder(value: number): number {
+    if (value <= 0) {
+      return 15;
+    }
+    if (value === 15) {
+      return 30;
+    }
+
+    return 0;
+  }
+
+  private nextTimeZone(value: string): string {
+    const zones: string[] = this.timeZoneValues();
+    const index: number = zones.indexOf(value);
+    return zones[(index + 1) % zones.length];
+  }
+
+  private timeZoneValues(): string[] {
+    return ["Asia/Shanghai", "UTC", "America/Los_Angeles", "Europe/London", "Asia/Tokyo"];
+  }
+
+  private defaultWeekEndsOn(weekStartsOn: number): number {
+    return weekStartsOn === 0 ? 6 : 0;
   }
 
   private async addDateMarkerFromForm(): Promise<void> {
@@ -6031,6 +6344,25 @@ struct Index {
     this.syncStatus = source.isVisible ? "日历源已隐藏" : "日历源已显示";
   }
 
+  private async cycleSourceColor(source: CalendarSource): Promise<void> {
+    const sourceId: string = source.id ?? "";
+    if (sourceId.length === 0) {
+      return;
+    }
+
+    const colors: string[] = this.sourceColorPalette();
+    const current: string = this.sourceColor(source);
+    const currentIndex: number = colors.indexOf(current);
+    const nextColor: string = colors[(currentIndex + 1) % colors.length];
+    try {
+      await this.requireService().updateSourceMetadata(sourceId, source.name, nextColor);
+      await this.loadSources();
+      this.syncStatus = `${source.name} 已切换为 ${nextColor}`;
+    } catch (error) {
+      this.syncStatus = this.describeError(error);
+    }
+  }
+
 	  private async setDefaultSource(source: CalendarSource): Promise<void> {
     const sourceId: string = source.id ?? "";
     if (sourceId.length === 0 || source.isReadOnly) {
@@ -6123,11 +6455,11 @@ struct Index {
       const holder = item as Record<string, string>;
       return (holder["email"] ?? "").toLowerCase() !== normalized;
     });
-    filtered.push({
+    filtered.push(JSON.parse(JSON.stringify({
       email,
       role: this.sourceShareRoleInput === "write" ? "write" : "read",
       addedAt: Date.now()
-    });
+    })));
 
     try {
       await this.requireService().updateSourceSharePermissions(sourceId, JSON.stringify(filtered));
@@ -6317,6 +6649,18 @@ struct Index {
     return inferCalendarProviderType(url);
   }
 
+  private currentAccountProviderType(): string {
+    return this.providerTypeFromServerUrl(this.serverUrl);
+  }
+
+  private accountUsernamePlaceholder(): string {
+    return this.currentAccountProviderType() === "icloud" ? "完整 Apple ID 邮箱" : "name@example.com";
+  }
+
+  private accountPasswordPlaceholder(): string {
+    return this.currentAccountProviderType() === "icloud" ? "Apple 应用专用密码，不是登录密码" : "应用专用密码";
+  }
+
   private providerDiagnosticHint(providerType: string, message: string = ""): string {
     return providerDiagnosticHint(providerType, message);
   }
@@ -6394,6 +6738,70 @@ struct Index {
     return source === null ? PRIMARY_COLOR : this.sourceColor(source);
   }
 
+  private selectedFormSource(): CalendarSource | null {
+    if (this.selectedSourceIdInput.length > 0) {
+      const selected: CalendarSource | undefined = this.sources.find((source: CalendarSource) =>
+        (source.id ?? "") === this.selectedSourceIdInput &&
+          this.sourceCanWrite(source) &&
+          this.sourceSupportsEventKind(source, this.eventKindInput));
+      if (selected !== undefined) {
+        return selected;
+      }
+    }
+
+    return this.defaultWritableSourceForKind(this.eventKindInput);
+  }
+
+  private formSource(): CalendarSource | null {
+    const event: CalendarEvent | null = this.editingEvent();
+    if (event !== null) {
+      return this.sourceForEvent(event);
+    }
+
+    return this.selectedFormSource();
+  }
+
+  private formSourceTitle(): string {
+    const source: CalendarSource | null = this.formSource();
+    return source === null ? "本地默认日历" : source.name;
+  }
+
+  private formSourceSubtitle(): string {
+    const source: CalendarSource | null = this.formSource();
+    if (source === null) {
+      return "添加 CalDAV 后会同步";
+    }
+
+    const prefix: string = this.editingEventId.length > 0 ? "当前来源" : "点击切换";
+    return `${prefix} · ${this.sourceTypeLabel(source)} · ${source.collectionUrl}`;
+  }
+
+  private formSourceColor(): string {
+    const source: CalendarSource | null = this.formSource();
+    return source === null ? PRIMARY_COLOR : this.sourceColor(source);
+  }
+
+  private cycleFormSource(): void {
+    const writable: CalendarSource[] = this.sources.filter((source: CalendarSource) =>
+      this.sourceCanWrite(source) && this.sourceSupportsEventKind(source, this.eventKindInput));
+    if (writable.length === 0) {
+      this.syncStatus = this.eventKindInput === "task" ? "当前没有支持 VTODO 任务的可写日历源" : "当前没有可写日历源";
+      return;
+    }
+
+    const ids: string[] = writable.map((source: CalendarSource) => source.id ?? "").filter((id: string) => id.length > 0);
+    if (ids.length === 0) {
+      return;
+    }
+
+    const currentIndex: number = ids.indexOf(this.selectedSourceIdInput);
+    this.selectedSourceIdInput = ids[(currentIndex + 1) % ids.length];
+    const selected: CalendarSource | null = this.selectedFormSource();
+    if (selected !== null) {
+      this.syncStatus = `保存到：${selected.name}`;
+    }
+  }
+
 	  private sourceColor(source: CalendarSource): string {
 	    return this.normalizedCategoryColor(source.color);
 	  }
@@ -6401,6 +6809,20 @@ struct Index {
 	  private sourceBackgroundColor(source: CalendarSource): string {
 	    return this.normalizedCategoryColor(source.backgroundColor ?? source.color);
 	  }
+
+  private sourceColorPalette(): string[] {
+    return COLOR_PALETTE_CLASSIC;
+  }
+
+  private sourceForEvent(event: CalendarEvent): CalendarSource | null {
+    const found: CalendarSource | undefined = this.sources.find((source: CalendarSource) => (source.id ?? "") === event.sourceId);
+    return found === undefined ? null : found;
+  }
+
+  private sourceEventCount(source: CalendarSource): number {
+    const sourceId: string = source.id ?? "";
+    return this.events.filter((event: CalendarEvent) => event.sourceId === sourceId && event.syncStatus !== "deleted").length;
+  }
 
 	  private sourceTypeLabel(source: CalendarSource): string {
 	    if (source.sourceType === "subscription") {
@@ -7582,6 +8004,11 @@ struct Index {
 		      return event.sourceId;
 		    }
 
+		    const selected: CalendarSource | null = this.selectedFormSource();
+		    if (selected !== null) {
+		      return selected.id ?? "";
+		    }
+
 		    return this.defaultWritableSourceId();
 		  }
 
@@ -7718,8 +8145,7 @@ struct Index {
 	      ids.push(sourceId);
 	    }
 
-	    this.viewConfig = await this.requireService().saveViewConfig({ ...this.viewConfig, sourceFilterJson: ids.length > 0 ? JSON.stringify(ids) : ""
-	      });
+	    this.viewConfig = await this.requireService().saveViewConfig(withViewConfig(this.viewConfig, "sourceFilterJson", ids.length > 0 ? JSON.stringify(ids) : ""));
 	    this.syncStatus = ids.length > 0 ? `已按 ${ids.length} 个日历源过滤` : "已清除日历源过滤";
 	  }
 
@@ -7737,13 +8163,13 @@ struct Index {
 	      this.attendeesInput = emails.join(", ");
 	    }
 
-	    this.attendeeJsonInput = this.appendAttendeeJson(this.attendeeJsonInput, {
+	    this.attendeeJsonInput = this.appendAttendeeJson(this.attendeeJsonInput, JSON.parse(JSON.stringify({
 	      email,
 	      name: this.attendeeNameInput.trim(),
 	      role: this.attendeeRoleInput,
 	      status: this.attendeeStatusInput,
 	      rsvp: this.attendeeRsvpInput
-	    });
+	    })));
 	    this.attendeeNameInput = "";
 	    this.attendeeEmailInput = "";
 	    this.clearFormError();
@@ -7802,13 +8228,13 @@ struct Index {
       const holder = item as Record<string, string>;
       return (holder["id"] ?? "") !== id;
     });
-    items.push({
+    items.push(JSON.parse(JSON.stringify({
       id,
       type,
       status: "NEEDS-ACTION",
       role: "REQ-PARTICIPANT",
       rsvp: true
-    });
+    })));
     return JSON.stringify(items);
   }
 
@@ -8082,18 +8508,26 @@ struct Index {
 		    this.freeBusyConflictSummary = "";
 		    this.scheduleSuggestionStatus = "";
 		    this.scheduleSuggestions = [];
-		    this.timeZoneInput = "";
+		    this.timeZoneInput = this.currentTimeZoneValue();
   }
 
   private openNewEvent(): void {
-    const today: number = startOfDay(Date.now());
-    this.selectedDay = today;
-    this.visibleMonth = today;
     this.resetEventForm();
     this.clearFormError();
     this.startInput = this.defaultStartText();
     this.endInput = this.defaultEndText();
     this.appPage = "editor";
+  }
+
+  private selectCalendarDay(day: number, nextView?: string): void {
+    this.selectedDay = startOfDay(day);
+    this.visibleMonth = this.monthStart(day);
+    if (nextView !== undefined && nextView.length > 0) {
+      this.scheduleView = nextView;
+    }
+    this.startInput = this.defaultStartText();
+    this.endInput = this.defaultEndText();
+    this.cancelEditing();
   }
 
   private closeEditor(): void {
@@ -8345,6 +8779,10 @@ struct Index {
     return TEXT_PRIMARY;
   }
 
+  private hasEventsForMiniMonthDay(day: number, month: number): boolean {
+    return this.sameMonth(day, month) && this.hasEventsForDay(day);
+  }
+
   private miniMonthDotColor(day: number, month: number): string {
     if (!this.sameMonth(day, month)) {
       return "#CBD5E1";
@@ -8360,7 +8798,7 @@ struct Index {
       return this.normalizedCategoryColor(marker.color ?? marker.periodColor ?? PRIMARY_COLOR);
     }
 
-    return "#EEF3F6";
+    return "#00000000";
   }
 
   private weekEventHeight(event: CalendarEvent): number {
@@ -8402,6 +8840,29 @@ struct Index {
 
 	    return Math.max(0, parsed - this.timeGridStartHour());
 	  }
+
+  private dayHourLabel(hour: string): string {
+    const parsed: number = Number.parseInt(hour, 10);
+    if (Number.isNaN(parsed)) {
+      return hour;
+    }
+    if (parsed === 12) {
+      return "12";
+    }
+    if (parsed > 12) {
+      return `${parsed - 12}`;
+    }
+
+    return `${parsed}`;
+  }
+
+  private nowTimeLabel(): string {
+    return formatTime(Date.now());
+  }
+
+  private dayNowIndicatorTop(): number {
+    return Math.max(0, this.nowIndicatorTop(this.selectedDay) - TIME_GRID_HEADER_HEIGHT);
+  }
 
   private timeGridDayStart(day: number): number {
 	    return startOfDay(day) + this.timeGridStartHour() * 60 * 60 * 1000;
@@ -8564,6 +9025,34 @@ struct Index {
     return "#00000000";
   }
 
+  private hasEventsForDay(day: number): boolean {
+    return this.eventCountForDay(day) > 0;
+  }
+
+  private monthCellBackground(day: number): string {
+    if (sameDay(day, this.selectedDay)) {
+      return PRIMARY_COLOR;
+    }
+
+    if (sameDay(day, Date.now())) {
+      return PRIMARY_SOFT_COLOR;
+    }
+
+    return "#FBFCFD";
+  }
+
+  private monthCellBorderColor(day: number): string {
+    if (sameDay(day, this.selectedDay)) {
+      return PRIMARY_COLOR;
+    }
+
+    if (sameDay(day, Date.now())) {
+      return PRIMARY_COLOR;
+    }
+
+    return "#EDF2F7";
+  }
+
   private eventMeta(event: CalendarEvent): string {
     const status: string = this.syncStatusLabel(event);
     const dateLabel: string = this.formatShortDate(event.startAt);
@@ -8608,33 +9097,30 @@ struct Index {
     return PRIMARY_SOFT_COLOR;
   }
 
-	  private monthCellSummary(day: number): string {
-	    const dayEvents: CalendarEvent[] = this.eventsForDay(day);
-	    if (dayEvents.length === 0) {
-	      const marker: CalendarDateMarker | null = this.primaryDateMarker(day);
-	      return marker === null ? "" : marker.title ?? "";
-	    }
-
-    const visibleCount: number = Math.max(1, Math.min(dayEvents.length, this.maxVisibleEventsPerDay()));
-    if (dayEvents.length <= visibleCount) {
-	      return dayEvents[0].title;
-	    }
-
-    return `${dayEvents[0].title} ${this.monthMoreLabel(dayEvents.length - visibleCount)}`;
-	  }
+  private monthCellButtonText(day: number): string {
+    return `${new Date(day).getDate()}`;
+  }
 
   private dayEventColors(day: number): string[] {
-    const dayEvents: CalendarEvent[] = this.eventsForDay(day);
     const colors: string[] = [];
-    this.markersForDay(day).forEach((marker: CalendarDateMarker) => {
-      if (colors.length < this.maxVisibleEventsPerDay()) {
-        colors.push(this.normalizedCategoryColor(marker.color ?? marker.periodColor ?? PRIMARY_COLOR));
+    const dayEvents: CalendarEvent[] = this.eventsForDay(day);
+    const maxDots: number = Math.min(dayEvents.length, this.maxVisibleEventsPerDay());
+    for (let index = 0; index < maxDots; index += 1) {
+      const color: string = this.eventCategoryColor(dayEvents[index]);
+      if (colors.indexOf(color) < 0 || colors.length === 0) {
+        colors.push(color);
       }
-    });
-    const remaining: number = this.maxVisibleEventsPerDay() - colors.length;
-    const maxDots: number = dayEvents.length > remaining ? remaining : dayEvents.length;
-    for (let index = 0; index < maxDots; index++) {
-      colors.push(this.eventCategoryColor(dayEvents[index]));
+      if (colors.length >= this.maxVisibleEventsPerDay()) {
+        break;
+      }
+    }
+
+    if (colors.length === 0) {
+      this.markersForDay(day).forEach((marker: CalendarDateMarker) => {
+        if (colors.length < this.maxVisibleEventsPerDay()) {
+          colors.push(this.normalizedCategoryColor(marker.color ?? marker.periodColor ?? PRIMARY_COLOR));
+        }
+      });
     }
 
     return colors;
@@ -8693,8 +9179,10 @@ struct Index {
   private defaultStartAt(): number {
     const now: Date = new Date();
     const roundedMinute: number = Math.ceil(now.getMinutes() / 15) * 15;
-    const date: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
-    date.setMinutes(roundedMinute);
+    const hour: number = roundedMinute >= 60 ? Math.min(23, now.getHours() + 1) : now.getHours();
+    const minute: number = roundedMinute >= 60 ? 0 : roundedMinute;
+    const selected: Date = new Date(this.selectedDay);
+    const date: Date = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate(), hour, minute, 0, 0);
     return date.getTime();
   }
 
@@ -8849,6 +9337,7 @@ struct Index {
     if (source === null || !this.sourceCanWrite(source) || !this.sourceSupportsEventKind(source, value)) {
       this.syncStatus = value === "task" ? "当前没有支持 VTODO 任务的可写日历源" : "当前没有支持 VEVENT 事件的可写日历源";
     } else {
+      this.selectedSourceIdInput = source.id ?? "";
       this.syncStatus = `当前默认写入：${source.name}`;
     }
   }
@@ -9247,6 +9736,11 @@ struct Index {
 	  }
 
 	  private eventCategoryColor(event: CalendarEvent): string {
+	    const source: CalendarSource | null = this.sourceForEvent(event);
+	    if (source !== null) {
+	      return this.sourceColor(source);
+	    }
+
 	    const eventColor: string = (event.backgroundColor ?? "").trim();
 	    if (eventColor.length > 0) {
 	      return this.normalizedCategoryColor(eventColor);
@@ -9403,6 +9897,10 @@ struct Index {
   }
 
   private newCalendarTitle(): string {
+    if (this.scheduleView === "day") {
+      return `${new Date(this.selectedDay).getMonth() + 1}月`;
+    }
+
 	    if (this.scheduleView === "week") {
 	      return "本周";
 	    }
@@ -9535,15 +10033,43 @@ struct Index {
   }
 
   private eventTimelineMeta(event: CalendarEvent): string {
+    const source: CalendarSource | null = this.sourceForEvent(event);
     const place: string = event.location.length > 0 ? event.location : this.eventKindLabel(event.eventKind ?? "calendar");
+    const sourceLabel: string = source === null ? "" : `${source.name} · `;
     if ((event.reminderMinutes ?? 0) > 0) {
-      return `${place} · 提前 ${event.reminderMinutes} 分钟提醒`;
+      return `${sourceLabel}${place} · 提前 ${event.reminderMinutes} 分钟提醒`;
     }
 
     if ((event.conferenceUrl ?? "").length > 0) {
-      return `${place} · 视频会议`;
+      return `${sourceLabel}${place} · 视频会议`;
     }
 
-    return place;
+    return `${sourceLabel}${place}`;
+  }
+}
+
+
+@Component
+struct ConfigButton {
+  @Prop label: string = ""
+  @Prop value: string = ""
+  @Prop active: boolean = false
+  onClickAction?: (value: string) => void
+
+  build() {
+    Button(this.label)
+      .height(38)
+      .layoutWeight(1)
+      .backgroundColor(this.active ? "#E7F5EF" : "#EEF3F6")
+      .fontColor(this.active ? "#087A5A" : "#687480")
+      .fontWeight(FontWeight.Bold)
+      .borderRadius(8)
+      .fontSize(13)
+      .margin({ right: 6 })
+      .onClick(() => {
+        if (this.onClickAction) {
+          this.onClickAction(this.value);
+        }
+      })
   }
 }

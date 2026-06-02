@@ -10,9 +10,10 @@ import {
   CalDavClient,
   CalDavDiscoveryTrace,
   DiscoveredCalendarSource,
+  RemoteCalendarEvent,
   RemoteCalendarListResult
 } from "./CalDavClient";
-import { normalizeServerUrl } from "./CalendarFormat";
+import { normalizeServerUrl, parseIcsEvent, hrefToId } from "./CalendarFormat";
 import {
   CalendarAccount,
   CalendarConnectionTestResult,
@@ -38,23 +39,6 @@ import {
 } from "./CalendarProviderPresets";
 
 
-/* ===================================================================
- * 类型转换辅助
- * =================================================================== */
-
-const caldavResultToAdapter = (result: RemoteCalendarListResult): AdapterListResult => ({
-  events: result.events.map((remote: { event: CalendarEvent; ics: string }) => remote.event),
-  icsList: result.events.map((remote: { event: CalendarEvent; ics: string }) => remote.ics),
-  failed: result.failed,
-  total: result.total,
-  deletedHrefs: result.deletedHrefs,
-  syncToken: result.syncToken,
-  incremental: result.incremental,
-  strategy: result.strategy ?? "full-sync",
-  httpStatus: result.httpStatus,
-  retryAfterSeconds: result.retryAfterSeconds,
-  diagnosticJson: result.diagnosticJson
-});
 
 const toDiscoveredSource = (source: DiscoveredCalendarSource, strategy: string = ""): DiscoveredSource => ({
   name: source.name,
@@ -80,6 +64,41 @@ const toDiscoveredSource = (source: DiscoveredCalendarSource, strategy: string =
   syncStrategy: strategy
 });
 
+/* ===================================================================
+ * 类型转换辅助
+ * =================================================================== */
+
+const caldavResultToAdapter = (result: RemoteCalendarListResult): AdapterListResult => {
+  const mappedEvents: CalendarEvent[] = [];
+  const mappedIcs: string[] = [];
+  const remoteEvents: RemoteCalendarEvent[] = result.events;
+  for (let idx: number = 0; idx < remoteEvents.length; idx++) {
+    const remote: RemoteCalendarEvent = remoteEvents[idx];
+    try {
+      const parsed: CalendarEvent | null = parseIcsEvent(remote.ics, remote.href, remote.etag ?? "", hrefToId(remote.href));
+      if (parsed !== null) {
+        mappedEvents.push(parsed);
+        mappedIcs.push(remote.ics);
+      }
+    } catch {
+      // skip unparseable event
+    }
+  }
+  return {
+    events: mappedEvents,
+    icsList: mappedIcs,
+    failed: result.failed,
+    total: result.total,
+    deletedHrefs: result.deletedHrefs,
+    syncToken: result.syncToken,
+    incremental: result.incremental,
+    strategy: result.strategy ?? "full-sync",
+    httpStatus: result.httpStatus,
+    retryAfterSeconds: result.retryAfterSeconds,
+    diagnosticJson: result.diagnosticJson
+  };
+};
+
 const toDiscoveryTrace = (trace: CalDavDiscoveryTrace): DiscoveryTrace => ({
   directCollectionUrl: trace.directCollectionUrl,
   directCollectionMatched: trace.directCollectionMatched,
@@ -94,7 +113,7 @@ const toDiscoveryTrace = (trace: CalDavDiscoveryTrace): DiscoveryTrace => ({
   errors: trace.errors
 });
 
-const toPutEventResult = (result: { href: string; etag: string }): PutEventResult => ({
+const toPutEventResult = (result: PutEventResult): PutEventResult => ({
   href: result.href,
   etag: result.etag
 });
@@ -128,7 +147,7 @@ const buildDavClient = (account: CalendarAccount, extraCollectionUrl: string = "
 
 /** 从 CalendarSource 构建最小 account 用于 CalDavClient（需补充密码等敏感信息） */
 const sourceToMinimalAccount = (source: CalendarSource): CalendarAccount => ({
-  serverUrl: normalizeServerUrl(source.homeSetUrl.length > 0 ? source.homeSetUrl : source.collectionUrl),
+  serverUrl: normalizeServerUrl((source.homeSetUrl ?? "").length > 0 ? (source.homeSetUrl ?? "") : source.collectionUrl),
   username: source.ownerEmail ?? "",
   password: "",
   authType: "basic",
@@ -212,7 +231,7 @@ export class CalDavSourceAdapter implements CalendarSourceAdapter {
       diagnosticJson: listResult.failed > 0
         ? JSON.stringify({ protocol: "caldav", failed: listResult.failed, total: listResult.total, checkedAt: Date.now() })
         : "",
-      syncStrategy: listResult.events.length > 0 && listResult.events[0].event.etag.length > 0 ? "full-sync" : "",
+      syncStrategy: listResult.events.length > 0 && (listResult.events[0].etag ?? "").length > 0 ? "full-sync" : "",
       sources: discoveredSources.length,
       total: listResult.total,
       parsed: listResult.events.length,
@@ -240,8 +259,18 @@ export class CalDavSourceAdapter implements CalendarSourceAdapter {
   async listEvents(source: CalendarSource): Promise<CalendarEvent[]> {
     const account: CalendarAccount = mergeAccount(source, this.account);
     const client = buildDavClient(account, source.collectionUrl);
-    const events: { event: CalendarEvent; ics: string }[] = await client.listEvents();
-    return events.map((remote: { event: CalendarEvent; ics: string }) => remote.event);
+    const remoteEvents: RemoteCalendarEvent[] = await client.listEvents();
+    const parsedEvents: CalendarEvent[] = [];
+    for (let ri: number = 0; ri < remoteEvents.length; ri++) {
+      const remote: RemoteCalendarEvent = remoteEvents[ri];
+      try {
+        const parsed: CalendarEvent | null = parseIcsEvent(remote.ics, remote.href, remote.etag ?? "", hrefToId(remote.href));
+        if (parsed !== null) {
+          parsedEvents.push(parsed);
+        }
+      } catch {}
+    }
+    return parsedEvents;
   }
 
   async listEventsWithStatus(source: CalendarSource): Promise<AdapterListResult> {
@@ -263,14 +292,14 @@ export class CalDavSourceAdapter implements CalendarSourceAdapter {
     const client = buildDavClient(account, source.collectionUrl);
     const event: CalendarEvent = draftToEvent(draft, source);
     const result = await client.putEvent(event);
-    return { ...event, href: result.href, etag: result.etag };
+    return { id: event.id, uid: event.uid, href: result.href, sourceId: event.sourceId, etag: result.etag, title: event.title, startAt: event.startAt, endAt: event.endAt, allDay: event.allDay, location: event.location, notes: event.notes, reminderMinutes: event.reminderMinutes, secondReminderMinutes: event.secondReminderMinutes, syncStatus: event.syncStatus, lastModified: event.lastModified, rrule: event.rrule ?? "", categoryColor: event.categoryColor ?? "", backgroundColor: event.backgroundColor ?? "", borderColor: event.borderColor ?? "", textColor: event.textColor ?? "", dragBackgroundColor: event.dragBackgroundColor ?? "", eventCategory: event.eventCategory ?? "", eventKind: event.eventKind ?? "calendar", eventSourceId: event.eventSourceId ?? "", url: event.url ?? "", attendees: event.attendees ?? "", attendeeJson: event.attendeeJson ?? "", organizerName: event.organizerName ?? "", organizerEmail: event.organizerEmail ?? "", conferenceUrl: event.conferenceUrl ?? "", attachmentUrl: event.attachmentUrl ?? "", attachmentsJson: event.attachmentsJson ?? "", travelMinutes: event.travelMinutes ?? 0, comingDuration: event.comingDuration ?? 0, availability: event.availability ?? "busy", freeBusyTransparent: event.freeBusyTransparent ?? false, rawPropsJson: event.rawPropsJson ?? "", snoozeMinutes: event.snoozeMinutes ?? 0, snoozeTimes: event.snoozeTimes ?? 0, reminderId: event.reminderId ?? 0, conflictStatus: event.conflictStatus, conflictJson: event.conflictJson ?? "" } as CalendarEvent;
   }
 
   async updateEvent(source: CalendarSource, event: CalendarEvent): Promise<PutEventResult> {
     const account: CalendarAccount = mergeAccount(source, this.account);
     const client = buildDavClient(account, source.collectionUrl);
-    const result = await client.putEvent(event);
-    return toPutEventResult(result);
+    const putResult = await client.putEvent(event) as PutEventResult;
+    return putResult as PutEventResult;
   }
 
   async deleteEvent(source: CalendarSource, event: CalendarEvent): Promise<void> {
@@ -347,7 +376,7 @@ export class CalDavSourceAdapter implements CalendarSourceAdapter {
 const mergeAccount = (source: CalendarSource, fallback: CalendarAccount): CalendarAccount => {
   const providerType: string = source.providerType ?? fallback.providerType ?? "custom";
   const serverUrl: string = normalizeServerUrl(
-    (source.homeSetUrl.length > 0 ? source.homeSetUrl : source.collectionUrl) || fallback.serverUrl
+    ((source.homeSetUrl ?? "").length > 0 ? (source.homeSetUrl ?? "") : source.collectionUrl) || fallback.serverUrl
   );
   return {
     id: fallback.id,

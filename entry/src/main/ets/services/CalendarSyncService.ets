@@ -16,6 +16,7 @@ import {
 import {
 // ---- ArkTS spread helper ----
   CalendarAccount,
+  CalendarConnectionTestResult,
   CalendarDateMarker,
   CalendarEvent,
   CalendarEventDraft,
@@ -188,6 +189,10 @@ export class CalendarSyncService {
     await this.store.updateSourceRefreshPolicy(sourceId, refreshIntervalMinutes, refreshPolicy);
   }
 
+  async updateSourceMetadata(sourceId: string, name: string, color: string): Promise<void> {
+    await this.store.updateSourceMetadata(sourceId, name, color);
+  }
+
   async updateRemoteSourceMetadata(sourceId: string, name: string, color: string): Promise<void> {
     const sources: CalendarSource[] = await this.store.listSources();
     const source: CalendarSource | undefined = sources.find((item: CalendarSource) => (item.id ?? "") === sourceId);
@@ -206,21 +211,48 @@ export class CalendarSyncService {
       throw new Error("日历源缺少关联 CalDAV 账号");
     }
 
-    const remote: DiscoveredCalendarSource = await this.adapterForSource(source, account).updateSourceMetadata(source, name, color);
+    const remote: DiscoveredCalendarSource = await this.adapterForSource(source, account).updateSourceMetadata(source, name, color) as DiscoveredCalendarSource;
     await this.store.upsertSource({
-      ...source,
+      id: source.id ?? "",
+      accountId: source.accountId,
       name: remote.name.length > 0 ? remote.name : name,
       description: remote.description.length > 0 ? remote.description : source.description ?? "",
+      collectionUrl: source.collectionUrl,
+      subscriptionUrl: source.subscriptionUrl ?? "",
+      principalUrl: remote.principalUrl.length > 0 ? remote.principalUrl : source.principalUrl ?? "",
+      homeSetUrl: remote.homeSetUrl.length > 0 ? remote.homeSetUrl : source.homeSetUrl ?? "",
+      scheduleInboxUrl: source.scheduleInboxUrl ?? "",
+      scheduleOutboxUrl: remote.scheduleOutboxUrl.length > 0 ? remote.scheduleOutboxUrl : source.scheduleOutboxUrl ?? "",
+      calendarUserAddressSet: source.calendarUserAddressSet ?? "",
+      ownerEmail: source.ownerEmail ?? "",
       color: remote.color.length > 0 ? remote.color : color,
       backgroundColor: remote.backgroundColor.length > 0 ? remote.backgroundColor : color,
       borderColor: remote.borderColor.length > 0 ? remote.borderColor : color,
       textColor: remote.textColor.length > 0 ? remote.textColor : source.textColor ?? "#FFFFFF",
+      isVisible: source.isVisible,
+      isDefault: source.isDefault,
+      isReadOnly: source.isReadOnly,
+      sourceType: source.sourceType,
+      freeBusyTransparent: source.freeBusyTransparent ?? false,
+      displayOrder: source.displayOrder ?? 0,
+      refreshIntervalMinutes: source.refreshIntervalMinutes ?? 15,
+      refreshPolicy: source.refreshPolicy ?? "manualAndInterval",
       permissionsJson: remote.permissionsJson.length > 0 ? remote.permissionsJson : source.permissionsJson ?? "",
+      sharePermissionsJson: source.sharePermissionsJson ?? "",
+      shareUsersJson: source.shareUsersJson ?? "",
+      shareGroupsJson: source.shareGroupsJson ?? "",
+      publicShareUrl: source.publicShareUrl ?? "",
+      publicShareToken: source.publicShareToken ?? "",
       supportedReportsJson: remote.supportedReportsJson.length > 0 ? remote.supportedReportsJson : source.supportedReportsJson ?? "",
       supportedComponentsJson: remote.supportedComponentsJson.length > 0 ? remote.supportedComponentsJson : source.supportedComponentsJson ?? "",
       discoveryTraceJson: source.discoveryTraceJson ?? "",
-      capabilitySource: remote.capabilitySource.length > 0 ? remote.capabilitySource : source.capabilitySource ?? "",
-      lastDiscoveryError: "",
+      capabilitySource: remote.capabilitySource ?? source.capabilitySource ?? "",
+      lastDiscoveryError: source.lastDiscoveryError ?? "",
+      providerType: source.providerType ?? "",
+      providerPresetJson: source.providerPresetJson ?? "",
+      syncStrategy: source.syncStrategy ?? "full",
+      externalProviderId: source.externalProviderId ?? "",
+      nativeCalendarId: source.nativeCalendarId ?? "",
       ctag: remote.ctag.length > 0 ? remote.ctag : source.ctag ?? "",
       syncToken: remote.syncToken.length > 0 ? remote.syncToken : source.syncToken ?? ""
     });
@@ -377,7 +409,7 @@ export class CalendarSyncService {
 
     const existing: CalendarSource[] = await this.store.listSourcesForAccount(accountId);
     const homeSetUrl: string = this.preferredHomeSetUrl(existing);
-    const remote: DiscoveredCalendarSource = await this.adapterForAccount(account).createSourceCollection(account, homeSetUrl, name, color);
+    const remote: DiscoveredCalendarSource = await this.adapterForAccount(account).createSourceCollection(account, homeSetUrl, name, color) as DiscoveredCalendarSource;
     const saved: CalendarSource = await this.store.upsertSource({
       accountId,
       name: remote.name,
@@ -545,19 +577,24 @@ export class CalendarSyncService {
 	    const providerType: string = account.providerType ?? inferCalendarProviderType(account.serverUrl);
 	    const serverUrl: string = normalizeServerUrl(normalizeProviderServerUrl(providerType, account.serverUrl, account.username));
 	    const preset = providerPresetFor(providerType);
-	    const adapter: CalendarSourceAdapter = this.adapterForAccount({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson });
-	    const discoveryTrace: CalDavDiscoveryTrace = await adapter.traceDiscovery({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson });
+	    const adapter: CalendarSourceAdapter = this.adapterForAccount({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson } as CalendarAccount);
+	    const discoveryTrace: CalDavDiscoveryTrace = await adapter.traceDiscovery({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson } as CalendarAccount) as CalDavDiscoveryTrace;
 	    let discoveredSources: DiscoveredCalendarSource[] = [];
 	    let discoveryError: string = "";
 	    try {
-	      discoveredSources = await adapter.discoverSources({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson });
+	      discoveredSources = await adapter.discoverSources({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson } as CalendarAccount);
 	    } catch (error) {
 	      discoveryError = this.describeError(error);
 	    }
-    const collectionUrl: string = discoveredSources.length > 0 ? discoveredSources[0].collectionUrl : (await adapter.discoverSources({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson })).filter(s => s.collectionUrl.length > 0).map(s => s.collectionUrl)[0] ?? "";
-    const tempSource: CalendarSource = this.tempSourceForAccount({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson }, collectionUrl);
-	    const adapterResult: AdapterListResult = await this.adapterForAccount({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson }).listEventsWithStatus(tempSource);
-	    const result: RemoteCalendarListResult = { events: adapterResult.events.map((event: CalendarEvent) => ({ event, ics: "" })), failed: adapterResult.failed, total: adapterResult.total, deletedHrefs: adapterResult.deletedHrefs, syncToken: adapterResult.syncToken, incremental: adapterResult.incremental, strategy: adapterResult.strategy ?? "full-sync", httpStatus: adapterResult.httpStatus, retryAfterSeconds: adapterResult.retryAfterSeconds, diagnosticJson: adapterResult.diagnosticJson };
+    const collectionUrl: string = discoveredSources.length > 0 ? discoveredSources[0].collectionUrl : (await adapter.discoverSources({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson } as CalendarAccount)).filter(s => s.collectionUrl.length > 0).map(s => s.collectionUrl)[0] ?? "";
+    const tempSource: CalendarSource = this.tempSourceForAccount({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson } as CalendarAccount, collectionUrl);
+	    const adapterResult: AdapterListResult = await this.adapterForAccount({ serverUrl, username: account.username.trim(), password: account.password, authType: account.authType, bearerToken: account.bearerToken, customHeadersJson: account.customHeadersJson, displayName: account.displayName, providerType, providerPresetJson: account.providerPresetJson } as CalendarAccount).listEventsWithStatus(tempSource);
+	    const result: RemoteCalendarListResult = { events: adapterResult.events.map((event: CalendarEvent): RemoteCalendarEvent => ({
+  uid: event.uid,
+  href: event.href,
+  etag: event.etag ?? "",
+  ics: ""
+})), failed: adapterResult.failed, total: adapterResult.total, deletedHrefs: adapterResult.deletedHrefs, syncToken: adapterResult.syncToken, incremental: adapterResult.incremental, strategy: adapterResult.strategy ?? "full-sync", httpStatus: adapterResult.httpStatus, retryAfterSeconds: adapterResult.retryAfterSeconds, diagnosticJson: adapterResult.diagnosticJson };
 	    const firstSource: DiscoveredCalendarSource | undefined = discoveredSources.length > 0 ? discoveredSources[0] : undefined;
     return {
       providerType,
@@ -627,16 +664,22 @@ export class CalendarSyncService {
     result: RemoteCalendarListResult,
     discoveryError: string
   ): string {
-    return JSON.stringify({
+    const diagOptions: Object = JSON.parse(JSON.stringify({
+      url: trace.optionsUrl,
+      dav: trace.davHeader,
+      allow: trace.allowHeader,
+      error: trace.optionsError
+    }));
+    const diagCaps: Object = sources.length > 0 ? JSON.parse(JSON.stringify({
+      reports: this.parseReportList(sources[0].supportedReportsJson),
+      components: this.parseComponentList(sources[0].supportedComponentsJson),
+      readOnly: sources[0].isReadOnly
+    })) : JSON.parse("{}");
+    return JSON.stringify(JSON.parse(JSON.stringify({
       providerType,
       normalizedServerUrl: serverUrl,
       directCollectionMatched: trace.directCollectionMatched,
-      options: {
-        url: trace.optionsUrl,
-        dav: trace.davHeader,
-        allow: trace.allowHeader,
-        error: trace.optionsError
-      },
+      options: diagOptions,
       rootsTried: trace.roots,
       principalUrls: trace.principalUrls,
       homeSetUrls: trace.homeSetUrls,
@@ -645,17 +688,13 @@ export class CalendarSyncService {
       discoveryError,
       discoveredSources: sources.length,
       firstCollectionUrl: sources.length > 0 ? sources[0].collectionUrl : "",
-      capabilities: sources.length > 0 ? {
-        reports: this.parseReportList(sources[0].supportedReportsJson),
-        components: this.parseComponentList(sources[0].supportedComponentsJson),
-        readOnly: sources[0].isReadOnly
-      } : {},
+      capabilities: diagCaps,
       objectTotal: result.total,
       parsedEvents: result.events.length,
       failedObjects: result.failed,
       syncStrategy: result.strategy ?? "",
       checkedAt: Date.now()
-    });
+    })));
   }
 
   private sourceDiscoveryTraceJson(
@@ -729,12 +768,14 @@ export class CalendarSyncService {
       }
       return parsed
         .filter((item: ShareMember) => item.email !== undefined && item.email.trim().length > 0)
-        .map((item: ShareMember) => ({
-          email: item.email.trim(),
-          role: item.role === "write" ? "write" : "read",
-          addedAt: item.addedAt ?? Date.now(),
-          diagnostic: item.diagnostic ?? ""
-        }));
+        .map((item: ShareMember) => {
+          return {
+            email: item.email.trim(),
+            role: item.role === "write" ? "write" : "read",
+            addedAt: item.addedAt ?? Date.now(),
+            diagnostic: item.diagnostic ?? ""
+          } as ShareMember;
+        });
     } catch {
       return [];
     }
@@ -742,12 +783,14 @@ export class CalendarSyncService {
 
   private shareJsonWithDiagnostic(value: string, diagnostic: string): string {
     const members: ShareMember[] = this.parseShareMembers(value);
-    return JSON.stringify(members.map((member: ShareMember) => ({
-      email: member.email,
-      role: member.role,
-      addedAt: member.addedAt,
-      diagnostic
-    })));
+    return JSON.stringify(members.map((member: ShareMember) => {
+      return {
+        email: member.email,
+        role: member.role,
+        addedAt: member.addedAt,
+        diagnostic
+      } as ShareMember;
+    }));
   }
 
   async createEvent(draft: CalendarEventDraft): Promise<CalendarEvent> {
@@ -887,7 +930,7 @@ export class CalendarSyncService {
           skippedByPermission += 1;
           continue;
         }
-        const ok: boolean = await this.pushDirtyEvent(adapter, event, sourceId);
+        const ok: boolean = await this.pushDirtyEvent(adapter, source, event, sourceId);
         pushed += ok ? 1 : 0;
         failed += ok ? 0 : 1;
       }
@@ -896,7 +939,7 @@ export class CalendarSyncService {
       if (this.canDeleteFromSource(source)) {
         const deletedEvents: CalendarEvent[] = deletedEventsForPush;
         for (const event of deletedEvents) {
-          const ok: boolean = await this.pushDeletedEvent(adapter, event, sourceId);
+          const ok: boolean = await this.pushDeletedEvent(adapter, source, event, sourceId);
           deleted += ok ? 1 : 0;
           failed += ok ? 0 : 1;
         }
@@ -1000,15 +1043,27 @@ const remoteResult: AdapterListResult = await this.pullRemoteChanges(adapter, so
 	      return await adapter.listEventsIncremental(source, token);
 	    } catch (error) {
 	      if (!this.shouldFallbackFullSync(error)) {
-	        throw error;
+	        throw error instanceof Error ? error : new Error(String(error));
 	      }
 	      console.error(`CalDAV incremental sync-token invalid, fallback to full pull: source=${source.id ?? source.collectionUrl}, reason=${this.describeError(error)}`);
 	      const full: AdapterListResult = await adapter.listEventsWithStatus(source);
-	      return { ...full, syncToken: full.syncToken ?? "", incremental: false, strategy: `sync-collection-token-reset+${full.strategy ?? "full"}` };
+	      return {
+	        events: full.events,
+	        icsList: full.icsList,
+	        failed: full.failed,
+	        total: full.total,
+	        deletedHrefs: full.deletedHrefs,
+	        syncToken: full.syncToken ?? "",
+	        incremental: false,
+	        httpStatus: full.httpStatus,
+	        retryAfterSeconds: full.retryAfterSeconds,
+	        diagnosticJson: full.diagnosticJson,
+	        strategy: `sync-collection-token-reset+${full.strategy ?? "full"}`
+	      } as AdapterListResult;
 	    }
 	  }
 
-  private pullErrorSummary(result: { failed: number; total: number; strategy?: string }): string {
+  private pullErrorSummary(result: AdapterListResult): string {
     const strategy: string = (result.strategy ?? "").length > 0 ? `，策略 ${result.strategy ?? ""}` : "";
     return `拉取失败 ${result.failed}/${result.total}${strategy}`;
   }
@@ -1114,7 +1169,7 @@ const remoteResult: AdapterListResult = await this.pullRemoteChanges(adapter, so
         skippedByPermission += 1;
         continue;
       }
-      const ok: boolean = await this.pushDirtyEvent(adapter, event, sourceId);
+      const ok: boolean = await this.pushDirtyEvent(adapter, source, event, sourceId);
       pushed += ok ? 1 : 0;
       failed += ok ? 0 : 1;
     }
@@ -1123,7 +1178,7 @@ const remoteResult: AdapterListResult = await this.pullRemoteChanges(adapter, so
     if (this.canDeleteFromSource(source)) {
       const deletedEvents: CalendarEvent[] = deletedEventsForPush;
       for (const event of deletedEvents) {
-        const ok: boolean = await this.pushDeletedEvent(adapter, event, sourceId);
+        const ok: boolean = await this.pushDeletedEvent(adapter, source, event, sourceId);
         deleted += ok ? 1 : 0;
         failed += ok ? 0 : 1;
       }
@@ -1264,13 +1319,49 @@ const remoteResult: AdapterListResult = await this.pullRemoteChanges(adapter, so
       detectedAt: Date.now(),
       reason
     });
-    return { ...event, sourceId, rawPropsJson: this.mergeRawPropsJson(event.rawPropsJson ?? "", lastModified: Date.now() }; diagnosticRaw),
-      lastModified: Date.now(),
+    return {
+      id: event.id,
+      uid: event.uid,
+      href: event.href,
+      etag: event.etag,
+      sourceId: sourceId,
+      title: event.title,
+      startAt: event.startAt,
+      endAt: event.endAt,
+      allDay: event.allDay,
+      location: event.location,
+      notes: event.notes,
+      eventSourceId: event.eventSourceId ?? "",
+      reminderMinutes: event.reminderMinutes ?? 0,
+      secondReminderMinutes: event.secondReminderMinutes ?? 0,
       syncStatus: "clean",
+      lastModified: Date.now(),
+      rrule: event.rrule ?? "",
+      categoryColor: event.categoryColor ?? "",
+      backgroundColor: event.backgroundColor ?? "",
+      borderColor: event.borderColor ?? "",
+      textColor: event.textColor ?? "",
+      dragBackgroundColor: event.dragBackgroundColor ?? "",
+      eventCategory: event.eventCategory ?? "",
+      eventKind: event.eventKind ?? "calendar",
+      url: event.url ?? "",
+      attendees: event.attendees ?? "",
+      attendeeJson: event.attendeeJson ?? "",
+      organizerName: event.organizerName ?? "",
+      organizerEmail: event.organizerEmail ?? "",
+      conferenceUrl: event.conferenceUrl ?? "",
+      attachmentUrl: event.attachmentUrl ?? "",
+      attachmentsJson: event.attachmentsJson ?? "",
+      travelMinutes: event.travelMinutes ?? 0,
+      comingDuration: event.comingDuration ?? 0,
+      availability: event.availability ?? "busy",
+      freeBusyTransparent: event.freeBusyTransparent ?? false,
+      rawPropsJson: this.mergeRawPropsJson(event.rawPropsJson ?? "", diagnosticRaw),
       conflictStatus: "none",
       conflictJson: ""
-    };
+    } as CalendarEvent;
   }
+
 
   private mergeRawPropsJson(existingJson: string, diagnosticJson: string): string {
     const existing: string = existingJson.trim();
@@ -1775,7 +1866,7 @@ const remoteResult: AdapterListResult = await this.pullRemoteChanges(adapter, so
     await this.store.updateReminderId(event.id, 0);
   }
 
-  private describeError(error: Error | string): string {
+  private describeError(error: Object): string {
     if (error instanceof Error) {
       return error.message;
     }
@@ -1791,7 +1882,7 @@ const remoteResult: AdapterListResult = await this.pullRemoteChanges(adapter, so
     }
   }
 
-  private httpStatusFromError(error: Error | string): number {
+  private httpStatusFromError(error: Object): number {
     if (error instanceof CalDavHttpError || error instanceof SubscriptionHttpError) {
       return error.status;
     }
@@ -1806,7 +1897,7 @@ const remoteResult: AdapterListResult = await this.pullRemoteChanges(adapter, so
     return Number.isNaN(parsed) ? 0 : parsed;
   }
 
-  private retryAfterFromError(error: Error | string): number {
+  private retryAfterFromError(error: Object): number {
     if (error instanceof CalDavHttpError || error instanceof SubscriptionHttpError) {
       return error.retryAfterSeconds;
     }

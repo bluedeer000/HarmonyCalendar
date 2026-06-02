@@ -112,6 +112,7 @@ export interface CalendarResource {
 }
 
 export interface CalendarEventDraft {
+  readonly id?: string;
   readonly sourceId?: string;
   readonly eventSourceId?: string;
   readonly title: string;
@@ -241,6 +242,7 @@ export interface CalendarViewConfig {
   readonly eventOrder?: string;
   readonly locale?: string;
   readonly hourFormat?: string;
+  readonly timeZone?: string;
   readonly enabledViewsJson?: string;
   readonly agendaEmptyText?: string;
   readonly agendaGroupMode?: string;

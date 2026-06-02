@@ -441,7 +441,7 @@ export class CalDavClient {
     return {
       href,
       etag: etag.length > 0 ? etag : event.etag
-    };
+    } as PutEventResult;
   }
 
   async deleteEvent(event: CalendarEvent): Promise<void> {
@@ -515,7 +515,7 @@ export class CalDavClient {
         if ((source.supportedComponentsJson ?? "").length > 0) {
           return source;
         }
-        return { ...source, supportedComponentsJson: JSON.stringify(components) };
+        return { name: source.name, description: source.description, collectionUrl: source.collectionUrl, principalUrl: source.principalUrl, homeSetUrl: source.homeSetUrl, scheduleInboxUrl: source.scheduleInboxUrl, scheduleOutboxUrl: source.scheduleOutboxUrl, calendarUserAddressSet: source.calendarUserAddressSet, ownerEmail: source.ownerEmail, color: source.color, backgroundColor: source.backgroundColor, borderColor: source.borderColor, textColor: source.textColor, isReadOnly: source.isReadOnly, permissionsJson: source.permissionsJson, supportedReportsJson: source.supportedReportsJson, supportedComponentsJson: JSON.stringify(components), capabilitySource: source.capabilitySource, ctag: source.ctag, syncToken: source.syncToken } as DiscoveredCalendarSource;
       } catch (error) {
         lastError = this.describeError(error);
         console.error(`CalDAV MKCALENDAR failed: url=${collectionUrl}, components=${components.join(",")}, reason=${lastError}`);
@@ -748,7 +748,7 @@ export class CalDavClient {
 
 	    const multigetResult: RemoteCalendarListResult | null = await this.tryCalendarMultiget(refs);
 	    if (multigetResult !== null) {
-	      return { ...multigetResult, strategy: `${baseStrategy}+calendar-multiget` };
+	      return { events: multigetResult.events, failed: multigetResult.failed, total: multigetResult.total, deletedHrefs: multigetResult.deletedHrefs, syncToken: multigetResult.syncToken, incremental: multigetResult.incremental, httpStatus: multigetResult.httpStatus, retryAfterSeconds: multigetResult.retryAfterSeconds, diagnosticJson: multigetResult.diagnosticJson, strategy: `${baseStrategy}+calendar-multiget` } as RemoteCalendarListResult;
 	    }
 
 	    for (const ref of refs) {
@@ -756,7 +756,7 @@ export class CalDavClient {
 	        const ics: string = await this.getObject(ref.href);
 	        const event: CalendarEvent | null = parseIcsEvent(ics, ref.href, ref.etag, hrefToId(ref.href));
 	        if (event !== null) {
-	          events.push({ event, ics });
+	          const evObj: RemoteCalendarEvent = { uid: event.uid, href: event.href, etag: event.etag ?? "", ics: ics }; events.push(evObj);
 	        }
 	      } catch (error) {
 	        failed += 1;
@@ -844,7 +844,7 @@ export class CalDavClient {
 	        failed += 1;
 	        return;
 	      }
-	      objects.push({ event, ics: item.ics });
+	      const evObj2: RemoteCalendarEvent = { uid: event.uid, href: event.href, etag: event.etag ?? "", ics: item.ics }; objects.push(evObj2);
 	    });
 
 	    if (objects.length === 0 && refs.length > 0) {
@@ -1543,7 +1543,7 @@ export class CalDavClient {
 	    return this.applyCustomHeaders(headers);
 	  }
 
-  private toHttpHeaders(headers: HeaderMap): Object {
+  private toHttpHeaders(headers: HeaderMap): Record<string, string> {
     const output: Record<string, string> = {};
     if (headers.authorization !== undefined) {
       output["authorization"] = headers.authorization;
@@ -1566,9 +1566,9 @@ export class CalDavClient {
     if (headers.userAgent !== undefined) {
       output["user-agent"] = headers.userAgent;
     }
-    Object.keys(headers.custom ?? {}).forEach((key: string) => {
+    Object.keys(headers.custom ?? ({} as Record<string, string>)).forEach((key: string) => {
       const name: string = key.trim().toLowerCase();
-      const value: string = (headers.custom ?? {})[key];
+      const value: string = (headers.custom ?? ({} as Record<string, string>))[key];
       if (name.length > 0 && value.length > 0 && !this.isBlockedCustomHeader(name)) {
         output[name] = value;
       }

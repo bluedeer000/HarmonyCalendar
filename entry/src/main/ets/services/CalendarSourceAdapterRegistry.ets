@@ -140,8 +140,9 @@ export class CalendarSourceAdapterRegistry {
 
   private resolveAdapterType(account: CalendarAccount): string {
     // 显式指定的 providerAdapterType 优先
-    if ((account as Record<string, string>)["providerAdapterType"] !== undefined) {
-      return (account as Record<string, string>)["providerAdapterType"];
+    const accountMap: Record<string, Object> = JSON.parse(JSON.stringify(account));
+    if (accountMap["providerAdapterType"] !== undefined) {
+      return accountMap["providerAdapterType"] as string;
     }
 
     // 已知的 providerType

@@ -250,7 +250,7 @@ const parseIcsEventLines = (
   const fallbackTaskAt: number = lastModifiedRaw.length > 0 ? parseIcsDate(lastModifiedRaw, false, "") : Date.now();
   const allDay: boolean = componentKind === "VTODO" ?
     (dtStart === null || dtStart.params.indexOf("VALUE=DATE") >= 0 || (due !== null && due.params.indexOf("VALUE=DATE") >= 0)) :
-    dtStart.params.indexOf("VALUE=DATE") >= 0;
+    dtStart !== null && dtStart.params.indexOf("VALUE=DATE") >= 0;
   const startAt: number = dtStart === null ? (dueAtValue > 0 ? dueAtValue : fallbackTaskAt) : parseIcsDate(dtStart.value, allDay, dtStart.params);
   const fallbackEnd: number = componentKind === "VTODO" ? (dueAtValue > 0 ? dueAtValue : startAt) : startAt + 60 * 60 * 1000;
   const endAt: number = dtEnd === null ? fallbackEnd : parseIcsDate(dtEnd.value, allDay, dtEnd.params);
@@ -884,14 +884,14 @@ const readAttendeeResourceSummary = (properties: IcsProperty[]): AttendeeResourc
       appendUnique(resourceIds, id);
     }
 
-    statusItems.push({
+    statusItems.push(JSON.parse(JSON.stringify({
       id,
       type: cutype.toLowerCase(),
       name: readParamValue(property.params, "CN"),
       role: readParamValue(property.params, "ROLE"),
       status: readParamValue(property.params, "PARTSTAT"),
       rsvp: readParamValue(property.params, "RSVP").toUpperCase() === "TRUE"
-    });
+    })));
   });
 
   return {
@@ -909,11 +909,11 @@ const readAttachmentJson = (properties: IcsProperty[]): string => {
       return;
     }
 
-    attachments.push({
+    attachments.push(JSON.parse(JSON.stringify({
       url,
       valueType: readParamValue(property.params, "VALUE"),
       formatType: readParamValue(property.params, "FMTTYPE")
-    });
+    })));
   });
   return attachments.length > 0 ? JSON.stringify(attachments) : "";
 };
@@ -1408,7 +1408,7 @@ const parseAttendeeJson = (value: string): CalendarAttendee[] => {
     }
     return parsed
       .filter((attendee: CalendarAttendee) => attendee.email !== undefined && attendee.email.trim().length > 0)
-      .map((attendee: CalendarAttendee) => ({
+      .map((attendee: CalendarAttendee): CalendarAttendee => ({
         email: attendee.email.trim(),
         name: attendee.name ?? attendee.email.trim(),
         role: attendee.role ?? "REQ-PARTICIPANT",

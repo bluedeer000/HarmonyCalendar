@@ -46,7 +46,7 @@ export const CALENDAR_PROVIDER_PRESETS: CalendarProviderPreset[] = [
     authHint: "使用 Apple ID 和应用专用密码",
     discoveryHint: "从 caldav.icloud.com 根地址发现个人日历集合",
     supportsWellKnown: false,
-    discoveryPaths: ["/", "/principals/{username}/", "/calendars/{username}/"],
+    discoveryPaths: ["/principals/", "/principals/{username}/", "/calendars/{username}/", "/"],
     authType: "basic-app-password",
     capabilityHints: ["VEVENT", "calendar-query"]
   },
@@ -245,12 +245,12 @@ export const buildProviderPresetJson = (providerType: string, serverUrl: string)
     discoveryPaths: providerPresetFor(providerType).discoveryPaths,
     authType: providerPresetFor(providerType).authType,
     capabilityHints: providerPresetFor(providerType).capabilityHints,
-    standardDiscovery: {
+    standardDiscovery: JSON.stringify({
       currentUserPrincipal: true,
       calendarHomeSet: true,
       directCollection: true,
       fallbackGuessPaths: true
-    }
+    })
   });
 
 export const normalizeProviderServerUrl = (providerType: string, serverUrl: string, username: string): string => {
@@ -321,7 +321,7 @@ export const providerDiagnosticHint = (providerType: string, message: string = "
   const lower: string = message.toLowerCase();
   if (lower.indexOf("401") >= 0 || lower.indexOf("403") >= 0 || lower.indexOf("unauthorized") >= 0) {
     if (providerType === "icloud") {
-      return "认证失败：iCloud 需要 Apple ID 和应用专用密码，不能直接使用 Apple ID 登录密码。";
+      return "认证失败：iCloud 需要完整 Apple ID 邮箱和 Apple 账号生成的应用专用密码，不能使用 Apple ID 登录密码；如果刚修改过密码，请重新生成应用专用密码。";
     }
     if (providerType === "google") {
       return "认证失败：Google CalDAV 通常需要应用专用密码或组织策略允许的凭据。";
