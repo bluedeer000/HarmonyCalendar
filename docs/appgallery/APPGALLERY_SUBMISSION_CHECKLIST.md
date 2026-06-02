@@ -15,6 +15,7 @@
 - 在 DevEco Studio 中配置正式发布签名。
 - 生成可提交审核的 signed HAP。
 - 保留签名证书、profile、版本号记录，避免后续升级失败。
+- 参考 `RELEASE_BUILD_AND_SIGN.md` 执行构建与签名。
 
 ## 三、功能验证
 
@@ -44,6 +45,7 @@
 - 应用详情长文案。
 - 隐私政策 URL。
 - 测试账号说明。
+- 后台录入流程参考 `APPGALLERY_CONNECT_STEPS.md`
 
 ## 六、当前剩余阻塞项
 
