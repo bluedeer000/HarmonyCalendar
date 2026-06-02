@@ -1,6 +1,11 @@
-# Harmony 日历
+# Macto 日历
 
 独立 HarmonyOS 项目，保留 Zoho CalDAV 双向同步作为日历主数据源。
+
+## 上架分支
+
+- 当前应用市场上架分支：`release/appgallery`
+- AppGallery 提交材料目录：`docs/appgallery/`
 
 ## 当前能力
 
@@ -48,7 +53,7 @@ DEVECO_SDK_HOME=/Applications/DevEco-Studio.app/Contents/sdk/default \
   --mode module -p module=entry@default -p product=default assembleHap --no-daemon
 ```
 
-当前项目未绑定签名配置，构建会产出 unsigned HAP。要真机安装，在 DevEco Studio 里打开本项目后，到 Signing Configs 里为 `com.macto.harmonycalendar` 生成匹配签名。
+当前项目未绑定可复用的仓库级签名配置，命令行默认会产出 unsigned HAP。要真机安装或提交应用市场，需要在 DevEco Studio 里打开本项目后，到 Signing Configs 里为 `com.macto.harmonycalendar` 生成发布签名，并保管好证书与 profile。
 
 ## 仍需真机验证
 
