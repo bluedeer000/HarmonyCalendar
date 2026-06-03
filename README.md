@@ -1,6 +1,14 @@
 # Harmony 日历
 
-独立 HarmonyOS 项目，保留 Zoho CalDAV 双向同步作为日历主数据源。
+> 基于 HarmonyOS 的 CalDAV 日历客户端，使用 Zoho CalDAV 作为主数据源，支持双向同步。
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![HarmonyOS](https://img.shields.io/badge/HarmonyOS-6.0-blue)
+![Language](https://img.shields.io/badge/Language-ArkTS-3178C6)
+
+## 简介
+
+一个功能完整的 HarmonyOS 日历应用，支持通过 CalDAV 协议与 Zoho Calendar（或其他 CalDAV 服务端）进行双向同步。
 
 ## 当前能力
 
@@ -37,40 +45,58 @@
 
 账号建议使用 Zoho 邮箱/用户名和应用专用密码。
 
-## 命令行构建
+## 快速开始
+
+### 前置条件
+
+- DevEco Studio（推荐最新版本）
+- HarmonyOS SDK（API 21+）
+- JDK 17+
+- Node.js
+
+### 构建
+
+在 DevEco Studio 中打开本项目，或使用命令行：
 
 ```bash
-cd /Users/mini/mactoHarmony/HarmonyCalendar
+cd HarmonyCalendar
 NODE_HOME=/usr/local \
-JAVA_HOME=/Users/mini/.jdk/jdk-17.0.19+10/Contents/Home \
-DEVECO_SDK_HOME=/Applications/DevEco-Studio.app/Contents/sdk/default \
+JAVA_HOME=/path/to/jdk-17 \
+DEVECO_SDK_HOME=/path/to/DevEco-Studio.app/Contents/sdk/default \
 /Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw \
   --mode module -p module=entry@default -p product=default assembleHap --no-daemon
 ```
 
-当前项目未绑定签名配置，构建会产出 unsigned HAP。要真机安装，在 DevEco Studio 里打开本项目后，到 Signing Configs 里为 `com.macto.harmonycalendar` 生成匹配签名。
+> 构建会产生 unsigned HAP。要在真机安装，请先在 DevEco Studio 中配置匹配的 Signing Config（包名：`com.macto.harmonycalendar`）。
 
-## 仍需真机验证
-
-- Harmony `NetworkKit` 是否允许运行时发送 `PROPFIND`。ArkTS 编译通过，但 CalDAV 方法需要在真机/模拟器网络栈上确认。
-- Zoho discovery 和具体 collection URL 都需要用真实账号测试，确认根地址发现、认证、重定向、证书和 ETag 表现。
-- 本地系统提醒需要在真机上确认 `PUBLISH_AGENT_REMINDER` 授权、通知开关和到点触发。
-- 重复日程目前仅展开基础 `FREQ/INTERVAL/COUNT/UNTIL`，不支持 `BYDAY`、`EXDATE`、`RDATE`、`RECURRENCE-ID` 和单次例外编辑。
-
-## 真机测试清单
+### 真机测试
 
 1. 在 DevEco Studio 打开本项目，为 `com.macto.harmonycalendar` 配置真机可安装的 Signing Config。
 2. 连接 HarmonyOS 真机并确认 `hdc list targets` 能看到设备。
 3. 安装签名后的 HAP，启动应用。
-4. 在 Zoho CalDAV 区填写根地址或 collection URL、用户名和应用专用密码，先点“测试连接”。
-5. “测试连接”应返回发现到的 collection URL、远端对象数、解析数和失败数。
-6. 新建一个带提醒和分类颜色的日程，点“同步”，再到 Zoho 日历确认远端出现。
-7. 在 Zoho 修改或删除该日程，回到应用点“同步”，确认本地更新或删除。
+4. 在 Zoho CalDAV 区填写根地址或 collection URL、用户名和应用专用密码，先点"测试连接"。
+5. "测试连接"应返回发现到的 collection URL、远端对象数、解析数和失败数。
+6. 新建一个带提醒和分类颜色的日程，点"同步"，再到 Zoho 日历确认远端出现。
+7. 在 Zoho 修改或删除该日程，回到应用点"同步"，确认本地更新或删除。
 8. 新建 `FREQ=WEEKLY;COUNT=3` 的重复日程，确认日/周/月/列表视图能看到展开实例。
 9. 创建未来提醒，确认系统通知权限、通知开关和到点提醒都正常。
 
-## 产物
+## 已知限制
 
-```text
-entry/build/default/outputs/default/entry-default-unsigned.hap
-```
+- Harmony `NetworkKit` 对 `PROPFIND` 方法的支持需在真机网络栈上确认。
+- Zoho discovery 和具体 collection URL 需用真实账号测试。
+- 本地系统提醒需要 `PUBLISH_AGENT_REMINDER` 授权。
+- 重复日程目前仅展开基础 `FREQ/INTERVAL/COUNT/UNTIL`，不支持 `BYDAY`、`EXDATE`、`RDATE`、`RECURRENCE-ID` 和单次例外编辑。
+
+## 技术栈
+
+- **语言**: ArkTS (Stage 模型)
+- **框架**: HarmonyOS 6.0 (API 21)
+- **数据**: 加密 RDB Store (S3)
+- **协议**: CalDAV (RFC 4791) / iCalendar (RFC 5545)
+
+## 许可证
+
+本项目基于 **MIT License** 开源 —— 详见 [LICENSE](LICENSE)。
+
+你可以自由使用、修改、分发本项目，无论用于个人或商业目的。
